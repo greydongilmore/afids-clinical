@@ -38,7 +38,10 @@ end
 % Subjects completed by all raters
 [B,I] = sort(size, 'descend');
 Sub = Sub(I);
-Sub_Comp = intersect(intersect(intersect(Sub{1,1},Sub{1,2}),Sub{1,3}), Sub{1,4});
+Sub_Comp = intersect(Sub{1,1},Sub{1,2});
+for irate = 2:length(raters)
+    Sub_Comp = intersect(Sub_Comp,Sub{1,irate});
+end
 
 % Table only containing subjects completed by all raters
 Data_comp = Data(ismember(Data.subject, Sub_Comp),:);
@@ -58,10 +61,10 @@ end
 
 % Difference between raters
 % Define the 2 raters
-goldStandard = 2;
-rater = 1;
+goldStandard = "MA";
+rater = 2;
 
-Coor_Diff = squeeze(Tot_Data(:,:,:,goldStandard) - Tot_Data(:,:,:,rater));
+Coor_Diff = squeeze(Tot_Data(:,:,:,ismember(raters, goldStandard)) - Tot_Data(:,:,:,rater));
 rater_error = sqrt(Coor_Diff(:,2,:).^2 + Coor_Diff(:,3,:).^2 + Coor_Diff(:,4,:).^2);
 rater_data = [Tot_Data(:,:,:,rater), rater_error];
 check_data = [];
@@ -80,7 +83,7 @@ check_data = array2table(check_data,'VariableNames',{'subject','fid','X','Y','Z'
 
 
 %% Future plans
-
+fclose('all')
 % Built into Coor_Diff are columns 1 and 5, if they are 0 then the same
 % fidicual (column 1) and subject (column 5) are compared.
 
