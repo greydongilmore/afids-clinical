@@ -81,9 +81,9 @@ end
 
 check_data = array2table(check_data,'VariableNames',{'subject','fid','X','Y','Z','X_diff','Y_diff','Z_diff'});
 
+fclose('all')
 
 %% Future plans
-fclose('all')
 % Built into Coor_Diff are columns 1 and 5, if they are 0 then the same
 % fidicual (column 1) and subject (column 5) are compared.
 
