@@ -2,7 +2,9 @@ clear
 clc
 fclose('all');
 
-data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
+% data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
+data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -83,14 +85,31 @@ check_data = array2table(check_data,'VariableNames',{'subject','fid','X','Y','Z'
 
 fclose('all')
 
-%% Future plans
-% Built into Coor_Diff are columns 1 and 5, if they are 0 then the same
-% fidicual (column 1) and subject (column 5) are compared.
 
-% Add an if statement for red flags if differences in x y or z coordinates
-% are greater than a certain value (3 mm?)
+%% Generate mean coordinates for gold standard + non-gold standard raters
 
-% Calcuate statistics (mean differences, SD, SE, IRR, etc).
+GS_raters = ["GG", "MA"];
+
+GS_mean = squeeze(mean(Tot_Data(:,:,:,ismember(raters,GS_raters)),4));
+NGS_mean =  squeeze(mean(Tot_Data(:,:,:,~ismember(raters,GS_raters)),4));
+
+% Diff between GS vs NGS
+
+GS_Diff = GS_mean - NGS_mean;
+GS_error_rate = sqrt(GS_Diff(:,2,:).^2 + GS_Diff(:,3,:).^2 + GS_Diff(:,4,:).^2);
+
+% Mean error between GS and NGS across subjects
+
+Mean_GS_Diff = mean(GS_Diff,3);
+
+
+% Preliminary figure
+for fid = 1:32
+    plot3(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),'o')
+    text(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),num2str(fid))
+    hold on
+end
+grid on
 
 
 
