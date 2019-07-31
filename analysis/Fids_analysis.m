@@ -2,8 +2,8 @@ clear
 clc
 fclose('all');
 
-% data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
-data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
+% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 
 
 raters = dir(data_dir);
