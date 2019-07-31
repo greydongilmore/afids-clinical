@@ -5,6 +5,7 @@ fclose('all');
 data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 
+sub_ignore = [149,150];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -32,8 +33,8 @@ Sub = {};
 size = [];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
-    sub_temp = Data.subject(idx,:);
-    Sub{1,r} = unique(Data.subject(idx,:), 'rows');
+    sub_temp = unique(Data.subject(idx,:), 'rows');
+    Sub{1,r} = sub_temp(~ismember(sub_temp, sub_ignore));
     size(r) = length(Sub{1,r});
 end
 
@@ -105,11 +106,21 @@ Mean_GS_Diff = mean(GS_Diff,3);
 
 % Preliminary figure
 for fid = 1:32
-    plot3(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),'o')
-    text(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),num2str(fid))
+    plot3(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),'o','Color','b','MarkerSize',10,'MarkerFaceColor',[217/255,1,1])
+    text(Mean_GS_Diff(fid,2),Mean_GS_Diff(fid,3),Mean_GS_Diff(fid,4),num2str(fid),'FontSize',14,'FontWeight','bold')
     hold on
 end
 grid on
+axis equal
+xl = max(abs(xlim()));xl = linspace(xl,-xl,2);
+yl = max(abs(ylim()));yl = linspace(yl,-yl,2);
+zl = max(abs(zlim()));zl = linspace(zl,-zl,2);
+line(2*xl, [0,0], [0,0], 'LineWidth', 1, 'Color', 'k');
+line([0,0], 2*yl, [0,0], 'LineWidth', 1, 'Color', 'k');
+line([0,0], [0,0], 2*zl, 'LineWidth', 1, 'Color', 'k');
 
+xlabel('X coord')
+ylabel('Y coord')
+zlabel('Z coord')
 
 
