@@ -5,7 +5,7 @@ fclose('all');
 data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 
-sub_ignore = [149,150];
+sub_ignore = [];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -34,6 +34,9 @@ size = [];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
     sub_temp = unique(Data.subject(idx,:), 'rows');
+    if ~isempty(sub_ignore)
+        sub_temp = sub_temp(~ismember(sub_temp, sub_ignore));
+    end
     Sub{1,r} = sub_temp(~ismember(sub_temp, sub_ignore));
     size(r) = length(Sub{1,r});
 end
