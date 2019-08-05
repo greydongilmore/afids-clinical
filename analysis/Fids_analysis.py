@@ -19,6 +19,7 @@ plt.rc('ytick.major', size = 0, width=0)
 #data_dir = r'/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid'
 data_dir = r'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid'
 
+show_only = True
 
 sub_ignore = []
 
@@ -27,34 +28,34 @@ fid_dic = {1: 'AC',
 		   2: 'PC',
 		   3: 'infracol. sulcus',
 		   4: 'PMJ',
-		   5: 'sup. interpeduncular fossa',
-		   6: 'R sup. LMS',
-		   7: 'L sup. LMS',
-		   8: 'R inf. LMS',
-		   9: 'L inf. LMS',
+		   5: 'SIPF',
+		   6: 'RSLMS',
+		   7: 'LSLMS',
+		   8: 'RILMS',
+		   9: 'LILMS',
 		   10: 'Culmen',
-		   11: 'Intermammillary sulcus',
-		   12: 'R MB',
-		   13: 'L MB',
-		   14: 'pineal gland',
-		   15: 'R LV at AC',
-		   16: 'L LV at AC',
-		   17: 'R LV at PC',
-		   18: 'L LV at PC',
-		   19: 'Genu of CC',
-		   20: 'Splenium of CC',
-		   21: 'R AL temporal horn',
-		   22: 'L AL temporal horn',
-		   23: 'R sup. AM temporal horn',
-		   24: 'L sup. AM temporal horn',
-		   25: 'R inf. AM temporal horn',
-		   26: 'L inf. AM temporal horn',
-		   27: 'R indusium griseum',
-		   28: 'L indusium griseum',
-		   29: 'R vent. occipital horn',
-		   30: 'L vent. occipital horn',
-		   31: 'R olf sulcal fundus',
-		   32: 'L olf sulcal fundus'
+		   11: 'IMS',
+		   12: 'RMB',
+		   13: 'LMB',
+		   14: 'PG',
+		   15: 'RLVAC',
+		   16: 'LLVAC',
+		   17: 'RLVPC',
+		   18: 'LLVPC',
+		   19: 'Genu',
+		   20: 'Splenium',
+		   21: 'RALTH',
+		   22: 'LALTH',
+		   23: 'RSAMTH',
+		   24: 'LSAMTH',
+		   25: 'RIAMTH',
+		   26: 'LIAMTH',
+		   27: 'RIGO',
+		   28: 'LIGO',
+		   29: 'RVOH',
+		   30: 'LVOH',
+		   31: 'ROSF',
+		   32: 'LOSF'
 		   }
 
 def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
@@ -120,7 +121,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 					
 			ax.view_init(elev=25, azim=44)
 			
-			ax.set_title(str(data_cnt), pad=5, fontweight='bold')
+			ax.set_title(str(data_cnt) + ': ' + fid_dic[data_cnt], pad=5, fontweight='bold')
 	
 			data_cnt += 1
 			
@@ -167,12 +168,15 @@ for r in raters:
 	Sub = pd.concat([Sub, data_table], axis = 0, ignore_index=True)
 	size.append((r,len(sub_temp)))
 
+full_subs = set(Sub[Sub['rater']==size[0][0]]['subject'].values)
+
 size = sorted(size, key=lambda tup: tup[1], reverse=True)
 Sub_Comp = list(set(Sub[Sub['rater']==size[0][0]]['subject'].values) & 
 				set(Sub[Sub['rater']==size[1][0]]['subject'].values))
 for irate in range(2,len(raters)):
 	Sub_Comp = list(set(Sub_Comp) & set(Sub[Sub['rater']==size[irate][0]]['subject'].values))
 
+#set(full_subs).difference(Sub[Sub['rater']==size[4][0]]['subject'].values)
 
 Data_comp = rater_final[rater_final['subject'].isin(Sub_Comp)]
 Data_comp = Data_comp.sort_values(['rater','subject', 'fid'], ascending=[True, True,True])
@@ -219,15 +223,15 @@ rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index(
 
 #%%
 
-plot_fiducials(rater_mean, GS_total_mean, data_dir, 1, True)
-plot_fiducials(rater_mean, GS_total_mean, data_dir, 2, True)
+plot_fiducials(rater_mean, GS_total_mean, data_dir, 1, show_only)
+plot_fiducials(rater_mean, GS_total_mean, data_dir, 2, show_only)
 
 #%%
 
 comparisons = [("GG", 'MA'),("GG", 'AT'),("GG", 'RC'),("GG", 'MJ'),("MA", 'AT'),
 			   ("MA", 'RC'),("MA", 'MJ'),("AT", 'RC'),("AT", 'MJ'),("RC", 'MJ')]
 
-max_val = 4.5
+max_val = 6.0
 
 fig, axes = plt.subplots(4, 2)
 plot_cnt = 0
@@ -267,28 +271,30 @@ for irow in range(4):
 
 fig.subplots_adjust(hspace=0.4, wspace=0.10, top=0.95, bottom=0.06, left=0.05, right=0.95) 
 
-output_temp = os.path.dirname(data_dir)
-output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
-
-if not os.path.exists(output_dir):
-	os.mkdir(output_dir)
-
-file_name = 'error_between_all_raters.png'
-
-fig = plt.gcf()
-fig.set_size_inches(16, 10)
-fig.savefig(os.path.join(output_dir, file_name), dpi=100)
-plt.close()
+if not show_only:
+	output_temp = os.path.dirname(data_dir)
+	output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
+	
+	if not os.path.exists(output_dir):
+		os.mkdir(output_dir)
+	
+	file_name = 'error_between_all_raters.png'
+	
+	fig = plt.gcf()
+	fig.set_size_inches(16, 10)
+	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
+	plt.close()
 
 #%%
 rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
 
-max_val = 4.5
+max_val = 6.0
 
 fig, axes = plt.subplots(5, 1)
 for irow in range(len(raters)):
 	rater_1 = raters[irow]
-	rater_2 = [x for x in raters if x != rater_1]
+#	rater_2 = [x for x in raters if x != rater_1]
+	rater_2 = raters
 
 	rater_1_data = rater_mean.loc[rater_mean['rater'].isin([rater_1]),:]
 	
@@ -313,18 +319,19 @@ for irow in range(len(raters)):
 	
 fig.subplots_adjust(hspace=0.45, wspace=0.5, top=0.95, bottom=0.08, left=0.10, right=0.90) 
 
-output_temp = os.path.dirname(data_dir)
-output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
-
-if not os.path.exists(output_dir):
-	os.mkdir(output_dir)
-
-file_name = 'error_raters_group_average.png'
-
-fig = plt.gcf()
-fig.set_size_inches(16, 10)
-fig.savefig(os.path.join(output_dir, file_name), dpi=100)
-plt.close()
+if not show_only:
+	output_temp = os.path.dirname(data_dir)
+	output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
+	
+	if not os.path.exists(output_dir):
+		os.mkdir(output_dir)
+	
+	file_name = 'error_raters_group_average.png'
+	
+	fig = plt.gcf()
+	fig.set_size_inches(16, 10)
+	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
+	plt.close()
 
 #%%
 
@@ -347,16 +354,17 @@ plt.xlabel("Fiducial", fontsize=12, fontweight = 'bold')
 plt.ylabel("Error", fontsize=12, fontweight = 'bold')
 plt.title('Average error across raters', fontsize=14, fontweight = 'bold')
 
-output_temp = os.path.dirname(data_dir)
-output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
-
-if not os.path.exists(output_dir):
-	os.mkdir(output_dir)
-
-file_name = 'average_error_across_raters.png'
-
-fig = plt.gcf()
-fig.set_size_inches(14, 10)
-fig.savefig(os.path.join(output_dir, file_name), dpi=100)
-plt.close()
+if not show_only:
+	output_temp = os.path.dirname(data_dir)
+	output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
+	
+	if not os.path.exists(output_dir):
+		os.mkdir(output_dir)
+	
+	file_name = 'average_error_across_raters.png'
+	
+	fig = plt.gcf()
+	fig.set_size_inches(14, 10)
+	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
+	plt.close()
 
