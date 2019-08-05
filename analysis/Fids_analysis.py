@@ -27,34 +27,34 @@ fid_dic = {1: 'AC',
 		   2: 'PC',
 		   3: 'infracol. sulcus',
 		   4: 'PMJ',
-		   5: 'sup. interpeduncular fossa',
-		   6: 'R sup. LMS',
-		   7: 'L sup. LMS',
-		   8: 'R inf. LMS',
-		   9: 'L inf. LMS',
+		   5: 'SIPF',
+		   6: 'RSLMS',
+		   7: 'LSLMS',
+		   8: 'RILMS',
+		   9: 'LILMS',
 		   10: 'Culmen',
-		   11: 'Intermammillary sulcus',
-		   12: 'R MB',
-		   13: 'L MB',
-		   14: 'pineal gland',
-		   15: 'R LV at AC',
-		   16: 'L LV at AC',
-		   17: 'R LV at PC',
-		   18: 'L LV at PC',
-		   19: 'Genu of CC',
-		   20: 'Splenium of CC',
-		   21: 'R AL temporal horn',
-		   22: 'L AL temporal horn',
-		   23: 'R sup. AM temporal horn',
-		   24: 'L sup. AM temporal horn',
-		   25: 'R inf. AM temporal horn',
-		   26: 'L inf. AM temporal horn',
-		   27: 'R indusium griseum',
-		   28: 'L indusium griseum',
-		   29: 'R vent. occipital horn',
-		   30: 'L vent. occipital horn',
-		   31: 'R olf sulcal fundus',
-		   32: 'L olf sulcal fundus'
+		   11: 'IMS',
+		   12: 'RMB',
+		   13: 'LMB',
+		   14: 'PG',
+		   15: 'RLVAC',
+		   16: 'LLVAC',
+		   17: 'RLVPC',
+		   18: 'LLVPC',
+		   19: 'Genu',
+		   20: 'Splenium',
+		   21: 'RALTH',
+		   22: 'LALTH',
+		   23: 'RSAMTH',
+		   24: 'LSAMTH',
+		   25: 'RIAMTH',
+		   26: 'LIAMTH',
+		   27: 'RIGO',
+		   28: 'LIGO',
+		   29: 'RVOH',
+		   30: 'LVOH',
+		   31: 'ROSF',
+		   32: 'LOSF'
 		   }
 
 def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
@@ -120,7 +120,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 					
 			ax.view_init(elev=25, azim=44)
 			
-			ax.set_title(str(data_cnt), pad=5, fontweight='bold')
+			ax.set_title(str(data_cnt) + ': ' + fid_dic[data_cnt], pad=5, fontweight='bold')
 	
 			data_cnt += 1
 			
