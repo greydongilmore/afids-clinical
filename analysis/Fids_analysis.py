@@ -8,16 +8,18 @@ This is a temporary script file.
 import os
 import numpy as np
 import pandas as pd
-import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import random
+import matplotlib
+
+
 plt.rcdefaults()
 plt.rc('xtick.major', size = 0, width=0)
 plt.rc('ytick.major', size = 0, width=0)
 
 #data_dir = r'/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid'
-data_dir = r'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid'
+data_dir = r'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid'
 
 show_only = True
 
@@ -83,6 +85,11 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 				file_name = 'distance_from_all_raters_mean.png'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
 			
+			elif analysis == 3:
+				plot_title = 'Distance from average MCP'
+				file_name = 'distance_from_avg_mcp_.png'
+				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
+				
 			for i in range(len(rater_labels)): #plot each point + it's index as text above
 				l1 = ax.scatter(tempData[i,0], tempData[i,1], tempData[i,2], marker='o', c=color[i],edgecolors='black', s=50, label=rater_labels[i])
 				if rater_labels[i] not in handles:
@@ -100,8 +107,8 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 			
 			ax.get_xaxis().set_ticklabels([])
 			ax.get_yaxis().set_ticklabels([])
-			ax.get_zaxis().set_ticklabels([])
-			ax.get_zaxis().set_major_locator(matplotlib.ticker.NullLocator())
+			ax.zaxis.set_ticklabels([])
+			ax.zaxis.set_major_locator(matplotlib.ticker.NullLocator())
 			
 			ax.set_xticks(major_ticks)
 			ax.set_yticks(major_ticks)
@@ -128,7 +135,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 	fig.subplots_adjust(hspace=0.04, wspace=0.02, top=0.90, bottom=0.06, left=0.02,right=0.92) 
 	plt.legend(handles=handles.values(), fontsize=12, bbox_to_anchor=[1.6, 2.5], handletextpad=0.05)
 	fig.suptitle(plot_title, y = 0.98, fontsize=14, fontweight='bold')
-	
+	plt.show()
 	if not showOnly:
 		output_temp = os.path.dirname(data_dir)
 		output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
@@ -181,6 +188,33 @@ for irate in range(2,len(raters)):
 Data_comp = rater_final[rater_final['subject'].isin(Sub_Comp)]
 Data_comp = Data_comp.sort_values(['rater','subject', 'fid'], ascending=[True, True,True])
 
+#%%	
+
+mcp_point = pd.DataFrame({})
+for r in raters:
+	for s in Sub_Comp:
+		ac = Data_comp.loc[(Data_comp['rater']==r) & (Data_comp['subject']==s) & (Data_comp['fid']==1),'x':'z'].values[0]
+		pc = Data_comp.loc[(Data_comp['rater']==r) & (Data_comp['subject']==s)& (Data_comp['fid']==2),'x':'z'].values[0]
+		mcp = (ac + pc)/2
+		data_table = pd.DataFrame({'rater': r, 'subject': s, 'x': mcp[0], 'y': mcp[1],'z': mcp[2]}, index=[0] )
+		mcp_point = pd.concat([mcp_point, data_table], axis = 0, ignore_index=True)
+
+mcp_point_mean = mcp_point.groupby(['subject'])['x','y','z'].mean()
+
+data_from_mcp = pd.DataFrame({})
+for r in raters:
+	for s in Sub_Comp:
+		for f in range(1,33):
+			point = Data_comp.loc[(Data_comp['rater']==r) & (Data_comp['subject']==s) & (Data_comp['fid']==f),'x':'z'].values[0]
+			di = point - mcp_point_mean.loc[s,:].values
+			euclidean = np.sqrt(di[0]**2 + di[1]**2 + di[2]**2)
+			data_table = pd.DataFrame({'rater': r, 'subject': s, 'fid': f, 'distance': euclidean,'x': di[0], 'y': di[1],'z': di[2]}, index=[0] )
+			data_from_mcp = pd.concat([data_from_mcp, data_table], axis = 0, ignore_index=True)
+			
+data_from_mcp_avg = data_from_mcp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
+
+plot_fiducials(data_from_mcp_avg, None, data_dir, 3, False)
+			
 #%%
 goldStandard = "MA"
 rater = 1
