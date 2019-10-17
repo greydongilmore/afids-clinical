@@ -135,7 +135,7 @@ zlabel('Z coord')
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
 ICC_Stats = zeros(5,32,3);
 
-Raters_ICC = ["GG", "MA"];
+Raters_ICC = ["GG", "MA", "AT"];
 
 ICC_Data = squeeze(Tot_Data(:,2:4,:,ismember(raters,Raters_ICC)));
 
