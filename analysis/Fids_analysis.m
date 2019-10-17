@@ -2,8 +2,8 @@ clear
 clc
 fclose('all');
 
-% data_dir = 'C:\Users\Greydon\Documents\github\afids_parkinsons\input\input_fid';
-data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
+% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 
@@ -64,6 +64,38 @@ for r = 1:length(raters)
      end
 end
 
+% Calculate average MCP point for all raters. Output array mcp_point_mean
+% is subject by average MCP (x,y,z)
+mcp_point = zeros(length(Sub_Comp),3,length(raters));
+for r = 1:length(raters)
+    for s = 1:length(Sub_Comp)
+        ac = Tot_Data(1,:,s,r);
+        pc = Tot_Data(2,:,s,r);
+        mcp_point(s,:,r) = (ac(2:4) + pc(2:4))/2;
+    end
+end
+
+mcp_point_mean = mean(mcp_point,3);
+
+
+% Adding a 6th item (euclidean distance) to the 2nd dimension, now it is
+% col 1: fid
+% col 2: x 
+% col 3: y
+% col 4: z 
+% col 5: distance from mcp 
+% col 6: sub 
+data_from_mcp = zeros(32,6,length(Sub_Comp), length(raters));
+for r = 1:length(raters)
+     for s = 1:length(Sub_Comp)
+         sub_mcp = mcp_point_mean(s,:);
+         for f = 1:32
+             minus_mcp = Tot_Data(f,2:4,s,r) - sub_mcp;
+             euclidean = sqrt(minus_mcp(1).^2 + minus_mcp(2).^2 +minus_mcp(3).^2);
+             data_from_mcp(f,:,s,r) = [Tot_Data(f,1,s,r),Tot_Data(f,2:4,s,r) - sub_mcp, euclidean, Tot_Data(f,5,s,r)];
+         end
+     end
+end
 
 % Difference between raters
 % Define the 2 raters
