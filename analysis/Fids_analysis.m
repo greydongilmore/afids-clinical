@@ -2,8 +2,9 @@ clear
 clc
 fclose('all');
 
-data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
+% data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 
@@ -128,6 +129,13 @@ GS_raters = ["GG", "MA"];
 
 GS_mean = squeeze(mean(Tot_Data(:,:,:,ismember(raters,GS_raters)),4));
 NGS_mean =  squeeze(mean(Tot_Data(:,:,:,~ismember(raters,GS_raters)),4));
+Tot_mean = squeeze(mean(Tot_Data(:,:,:,:),4));
+
+% Outliers
+
+Tot_diff = Tot_Data - repmat(Tot_mean,1,1,1,length(raters));
+Tot_eudiff = sqrt(Tot_diff(:,2,:,:).^2 + Tot_diff(:,3,:,:).^2 + Tot_diff(:,4,:,:).^2);
+Outlier = Tot_eudiff > 10;
 
 % Diff between GS vs NGS
 
@@ -138,6 +146,17 @@ GS_error_rate = sqrt(GS_Diff(:,2,:).^2 + GS_Diff(:,3,:).^2 + GS_Diff(:,4,:).^2);
 
 Mean_GS_Diff = mean(GS_Diff,3);
 
+% Anatomical Fiducial Localization Error (AFLE) calculations 
+
+% Mean AFLE across raters
+
+Rater_AFLE_mean = squeeze(mean(Tot_eudiff,3));
+Rater_AFLE_SD = squeeze(std(Tot_eudiff,0,3));
+
+%Total mean AFLE
+
+Total_AFLE_mean = squeeze(mean(Rater_AFLE_mean,2));
+Total_AFLE_SD = squeeze(std(Tot_eudiff,0,[3 4]));
 
 % Preliminary figure
 for fid = 1:32
@@ -167,7 +186,7 @@ zlabel('Z coord')
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
 ICC_Stats = zeros(5,32,3);
 
-Raters_ICC = ["GG", "MA", "AT"];
+Raters_ICC = ["AT", "MJ", "RC"];
 
 ICC_Data = squeeze(Tot_Data(:,2:4,:,ismember(raters,Raters_ICC)));
 
