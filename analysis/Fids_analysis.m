@@ -2,9 +2,9 @@ clear
 clc
 fclose('all');
 
-% data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
+data_dir = '/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid';
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
+%data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 
@@ -132,7 +132,7 @@ NGS_mean =  squeeze(mean(Tot_Data(:,:,:,~ismember(raters,GS_raters)),4));
 Tot_mean = squeeze(mean(Tot_Data(:,:,:,:),4));
 
 % Outliers
-
+test =repmat(Tot_mean,1,1,1,length(raters));
 Tot_diff = Tot_Data - repmat(Tot_mean,1,1,1,length(raters));
 Tot_eudiff = sqrt(Tot_diff(:,2,:,:).^2 + Tot_diff(:,3,:,:).^2 + Tot_diff(:,4,:,:).^2);
 Outlier = Tot_eudiff > 10;

@@ -18,8 +18,8 @@ plt.rcdefaults()
 plt.rc('xtick.major', size = 0, width=0)
 plt.rc('ytick.major', size = 0, width=0)
 
-#data_dir = r'/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid'
-data_dir = r'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid'
+data_dir = r'/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid'
+#data_dir = r'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid'
 
 show_only = True
 
@@ -28,14 +28,14 @@ sub_ignore = []
 #%%
 fid_dic = {1: 'AC',
 		   2: 'PC',
-		   3: 'infracol. sulcus',
+		   3: 'ICS',
 		   4: 'PMJ',
 		   5: 'SIPF',
 		   6: 'RSLMS',
 		   7: 'LSLMS',
 		   8: 'RILMS',
 		   9: 'LILMS',
-		   10: 'Culmen',
+		   10: 'CUL',
 		   11: 'IMS',
 		   12: 'RMB',
 		   13: 'LMB',
@@ -44,8 +44,8 @@ fid_dic = {1: 'AC',
 		   16: 'LLVAC',
 		   17: 'RLVPC',
 		   18: 'LLVPC',
-		   19: 'Genu',
-		   20: 'Splenium',
+		   19: 'GENU',
+		   20: 'SPLE',
 		   21: 'RALTH',
 		   22: 'LALTH',
 		   23: 'RSAMTH',
@@ -265,7 +265,7 @@ plot_fiducials(rater_mean, GS_total_mean, data_dir, 2, show_only)
 comparisons = [("GG", 'MA'),("GG", 'AT'),("GG", 'RC'),("GG", 'MJ'),("MA", 'AT'),
 			   ("MA", 'RC'),("MA", 'MJ'),("AT", 'RC'),("AT", 'MJ'),("RC", 'MJ')]
 
-max_val = 6.0
+max_val = 8.0
 
 fig, axes = plt.subplots(4, 2)
 plot_cnt = 0
@@ -278,16 +278,20 @@ for irow in range(4):
 		rater_2_data = Data_comp[Data_comp['rater'].isin([rater_2])].reset_index()
 		
 		rater_coor_Diff = rater_1_data.loc[:,'x':'z'].values.astype(float) - rater_2_data.loc[:,'x':'z'].values.astype(float)
-		
-		rater_coor_mean = pd.DataFrame(np.c_[rater_coor_Diff, rater_1_data['subject'].values.astype(int), rater_1_data['fid'].values.astype(int)]).groupby([4])[0,1,2].mean()
-		
-		rater_coor_error = pd.DataFrame(np.sqrt(rater_coor_mean.loc[:,0]**2 + rater_coor_mean.loc[:,1]**2 + rater_coor_mean.loc[:,2]**2))
+				
+		rater_coor_error = pd.DataFrame(np.sqrt(rater_coor_Diff[:,0]**2 + rater_coor_Diff[:,1]**2 + rater_coor_Diff[:,2]**2))
 		rater_coor_error.rename(columns={0:'error'}, inplace=True)
-		rater_coor_error['name']= [fid_dic[x] for x in np.unique(rater_1_data['fid'].values.astype(int))]
-		rater_coor_error['fid']= np.unique(rater_1_data['fid'].values.astype(int))
-
-		title = ' '.join(["Error Between",rater_1,'and',rater_2])
-		rater_coor_error[['error']].plot(kind='bar', title =title, ax=axes[irow,icol], legend=False, align='center', width=0.8)
+		fid_names = [fid_dic[x] for x in np.unique(rater_1_data['fid'].values.astype(int))]
+		rater_coor_error['name']= fid_names*int(len(rater_coor_Diff)/len(fid_names))
+		rater_coor_error['fid']= list(np.unique(rater_1_data['fid'].values.astype(int)))*int(len(rater_coor_Diff)/len(fid_names))
+		
+		rater_coor_error_plot = pd.DataFrame({})
+		rater_coor_error_plot['error'] = rater_coor_error.groupby(['fid'])['error'].mean().values
+		rater_coor_error_plot['name'] = fid_names
+		rater_coor_error_plot['fid'] = list(np.unique(rater_1_data['fid'].values.astype(int)))
+		
+		title = ' '.join(["Error Between", rater_1, 'and', rater_2])
+		rater_coor_error_plot[['error']].plot(kind='bar', title =title, ax=axes[irow,icol], legend=False, align='center', width=0.8)
 		if irow == 3:
 			axes[irow,icol].set_xlabel("Fiducial", fontsize=12, fontweight = 'bold')
 		else:
@@ -322,36 +326,42 @@ if not show_only:
 #%%
 rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
 
-max_val = 6.0
+afle = pd.DataFrame({})
+afle['subject'] = Data_comp['subject']
+afle['rater'] = Data_comp['rater']
+afle['fid'] = Data_comp['fid']
+raters_data = Data_comp.loc[:,['x','y','z']].values
+rater_data_avg = np.tile(Data_comp.groupby(['subject','fid'])['x','y','z'].mean().values[None,:], (len(raters), 1))[0]
+rater_diff = raters_data - rater_data_avg
+afle['euclid'] = pd.DataFrame(np.sqrt(rater_diff[:,0]**2 + rater_diff[:,1]**2 + rater_diff[:,2]**2)).values
+afle['x'] = rater_diff[:,0]
+afle['y'] = rater_diff[:,1]
+afle['z'] = rater_diff[:,2]
+
+afle_mean = afle.groupby(['rater','fid'])['euclid'].mean().values
+afle_mean_coords = afle.groupby(['rater','fid'])['x','y','z'].mean().values
 
 fig, axes = plt.subplots(5, 1)
-for irow in range(len(raters)):
-	rater_1 = raters[irow]
-#	rater_2 = [x for x in raters if x != rater_1]
-	rater_2 = raters
-
-	rater_1_data = rater_mean.loc[rater_mean['rater'].isin([rater_1]),:]
+max_val = 6.0
+fid_cnt = 0
+for irow in range(len(np.unique(afle['rater']))):
+	afle_mean_rater = pd.DataFrame({})
+	afle_mean_rater['error'] = afle_mean[fid_cnt:fid_cnt+32]
+	afle_mean_rater['fid'] = np.unique(Data_comp['fid'])
 	
-	rater_coor_Diff = rater_mean.loc[rater_mean['rater'].isin([rater_1]),:].groupby(['fid']).mean().values - rater_mean[rater_mean['rater'].isin(rater_2)].groupby(['fid'])['x','y','z'].mean().values
-	
-	rater_coor_error = pd.DataFrame(np.sqrt(rater_coor_Diff[:,0]**2 + rater_coor_Diff[:,1]**2 + rater_coor_Diff[:,2]**2))
-	rater_coor_error.rename(columns={0:'error'}, inplace=True)
-	rater_coor_error['name']= [fid_dic[x] for x in np.unique(rater_1_data['fid'].values.astype(int))]
-	rater_coor_error['fid']= np.unique(rater_1_data['fid'].values.astype(int))
-
-	title = ' '.join(["Error Between", rater_1, 'and group average'])
-	rater_coor_error.plot(kind='bar', x='fid', y='error', title =title, ax=axes[irow], legend=False, align='center', width=0.8)
+	title = ' '.join(["Error Between", np.unique(afle['rater'])[irow], 'and group average'])
+	afle_mean_rater.plot(kind='bar', x='fid', y='error', title =title, ax=axes[irow], legend=False, align='center', width=0.8)
 	if irow == (len(raters)-1):
 		axes[irow].set_xlabel("Fiducial", fontsize=12, fontweight = 'bold')
 	else:
 		axes[irow].xaxis.label.set_visible(False)
-		
 	axes[irow].set_ylabel("Error", fontsize=12, fontweight = 'bold')
-	
 	axes[irow].set_ylim([0,max_val])
 	axes[irow].set_xticklabels(axes[irow].get_xticklabels(), rotation=45, fontweight = 'bold')
 	
-fig.subplots_adjust(hspace=0.45, wspace=0.5, top=0.95, bottom=0.08, left=0.10, right=0.90) 
+	fid_cnt += 32
+
+fig.subplots_adjust(hspace=0.45, wspace=0.5, top=0.95, bottom=0.08, left=0.10, right=0.90)
 
 if not show_only:
 	output_temp = os.path.dirname(data_dir)
@@ -367,22 +377,93 @@ if not show_only:
 	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
 	plt.close()
 
+afle_mean_coords_x = afle_mean_coords[:,0]
+afle_mean_coords_x = afle_mean_coords_x.reshape(5,32).T
+afle_mean_coords_y = afle_mean_coords[:,1]
+afle_mean_coords_y = afle_mean_coords_y.reshape(5,32).T
+afle_mean_coords_z = afle_mean_coords[:,2]
+afle_mean_coords_z = afle_mean_coords_z.reshape(5,32).T
+
+
+rater_labels = np.unique(afle['rater'])
+
+random.seed(1)
+color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(raters))]
+
+min_val = -2.5
+max_val = 2.5
+major_ticks = np.linspace(min_val,max_val, 7)
+
+fig = plt.figure(figsize=(18,8))
+handles = {}
+data_cnt = 0
+for ifid in range(4):
+	for jfid in range(8):
+		ax = plt.subplot2grid((4, 8),(ifid,jfid), projection='3d')
+
+		plot_title = 'Distance from the average of all raters'
+		file_name = 'distance_from_all_raters_mean.png'
+		tempData = [afle_mean_coords_x[data_cnt,:], afle_mean_coords_y[data_cnt,:], afle_mean_coords_z[data_cnt,:]]
+		
+		for i in range(len(rater_labels)): #plot each point + it's index as text above
+			l1 = ax.scatter(tempData[0][i], tempData[1][i], tempData[2][i], marker='o', c=color[i],edgecolors='black', s=50, label=rater_labels[i])
+			if rater_labels[i] not in handles:
+				handles[rater_labels[i]] = l1
+		 
+		ax.plot((min_val, min_val), (min_val, min_val), (min_val-0.1, max_val+0.1), 'black', linewidth=1.0)
+		
+		ax.set_xlim([min_val, max_val])
+		ax.set_ylim([min_val, max_val])
+		ax.set_zlim([min_val, max_val])
+		
+		ax.set_xlabel('x', labelpad=-15, fontweight='bold')
+		ax.set_ylabel('y', labelpad=-15, fontweight='bold')
+		ax.set_zlabel('z', labelpad=-15, fontweight='bold')
+		
+		ax.get_xaxis().set_ticklabels([])
+		ax.get_yaxis().set_ticklabels([])
+		ax.zaxis.set_ticklabels([])
+		ax.zaxis.set_major_locator(matplotlib.ticker.NullLocator())
+		
+		ax.set_xticks(major_ticks)
+		ax.set_yticks(major_ticks)
+		ax.set_zticks(major_ticks)
+		
+		ax.grid(which='major', alpha=0.5)
+		
+		ax.xaxis.pane.set_edgecolor('black')
+		ax.yaxis.pane.set_edgecolor('black')
+		ax.zaxis.pane.set_edgecolor('black')
+		ax.xaxis.pane.set_alpha(1)
+		ax.yaxis.pane.set_alpha(1)
+		ax.zaxis.pane.set_alpha(1)
+		ax.xaxis.pane.fill = False
+		ax.yaxis.pane.fill = False
+		ax.zaxis.pane.fill = False
+				
+		ax.view_init(elev=25, azim=44)
+		
+		ax.set_title(str(data_cnt+1) + ': ' + fid_dic[data_cnt+1], pad=5, fontweight='bold')
+
+		data_cnt += 1
+		
+fig.subplots_adjust(hspace=0.04, wspace=0.02, top=0.90, bottom=0.06, left=0.02,right=0.92) 
+plt.legend(handles=handles.values(), fontsize=12, bbox_to_anchor=[1.6, 2.5], handletextpad=0.05)
+fig.suptitle(plot_title, y = 0.98, fontsize=14, fontweight='bold')
+
+if not show_only:
+	output_temp = os.path.dirname(data_dir)
+	output_dir = os.path.join(os.path.dirname(output_temp), 'output', 'plots')
+	
+	if not os.path.exists(output_dir):
+		os.mkdir(output_dir)
+		
+	plt.savefig(os.path.join(output_dir, file_name))
+	plt.close()
+	
 #%%
 
-average_error_raters = []
-for irow in range(len(raters)):
-	rater_1 = raters[irow]
-	rater_2 = [x for x in raters if x != rater_1]
-
-	rater_1_data = rater_mean.loc[rater_mean['rater'].isin([rater_1]),:]
-	
-	rater_coor_Diff = rater_mean.loc[rater_mean['rater'].isin([rater_1]),:].groupby(['fid']).mean().values - rater_mean[rater_mean['rater'].isin(rater_2)].groupby(['fid'])['x','y','z'].mean().values
-	
-	average_error_raters.append(np.sqrt(rater_coor_Diff[:,0]**2 + rater_coor_Diff[:,1]**2 + rater_coor_Diff[:,2]**2).T)
-	
-average_error_raters = np.mean(average_error_raters, axis=0)
-
-plt.bar(np.arange(1,33,1),average_error_raters)
+plt.bar(np.arange(1,33,1),np.mean(afle_mean.reshape(5,32).T,1))
 plt.xticks(np.arange(1,33,1), np.arange(1,33,1), rotation=45, fontweight = 'bold')
 plt.xlabel("Fiducial", fontsize=12, fontweight = 'bold')
 plt.ylabel("Error", fontsize=12, fontweight = 'bold')
