@@ -3,8 +3,8 @@ clc
 fclose('all');
 
 % data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
-% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
+data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+% data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 
