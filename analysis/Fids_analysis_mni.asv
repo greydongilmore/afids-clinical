@@ -66,10 +66,10 @@ MNI_mean = table2array(data_table(:,1:4));
 MNI_Diff = Tot_Data(:,1:4,:,:) - repmat(MNI_mean,1,1,length(Sub_Comp),length(raters));
 MNI_AFLE = squeeze(sqrt(MNI_Diff(:,2,:,:).^2 + MNI_Diff(:,3,:,:).^2 + MNI_Diff(:,4,:,:).^2));
 
-% AFLE from gs MNI across raters, individual scans and raters + fids
-MNI_AFLE_rater = squeeze(mean(MNI_AFLE,3));
-MNI_AFLE_scan = squeeze(mean(MNI_AFLE,2));
-MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
+% Mean coordinates across all raters
+
+
+
 
 
 
