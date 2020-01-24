@@ -2,15 +2,8 @@ clear
 clc
 fclose('all');
 
-<<<<<<< HEAD
-% data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
-data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-% data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
-=======
-data_dir = '/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid';
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-%data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
->>>>>>> c31ec08386d9b2abe84aee7029cb6ed627330b22
+data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 

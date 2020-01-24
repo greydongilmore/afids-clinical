@@ -2,7 +2,7 @@ function [data_table] = read_fcsv(filename, rater, subject)
 
     sub = strsplit(subject,'-');
     sub = regexp(sub{2},'-?\d+\.?\d*|-?\d*\.?\d+','match');
-    
+        
     %--- Import the data
     fileID = fopen(fullfile(filename.folder, filename.name));
     data = textscan(fileID,'%s %f %f %f %f %f %f %f %f %f %f %f %s %s', 'Delimiter', ',','headerLines', 3, 'CollectOutput', 1);
