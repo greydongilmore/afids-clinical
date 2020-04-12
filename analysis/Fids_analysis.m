@@ -2,8 +2,8 @@ clear
 clc
 fclose('all');
 
-% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
+data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [];
 
@@ -183,11 +183,11 @@ zlabel('Z coord')
 % Goal is calculate ICC for each fiducial for each axis
 
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
-ICC_Stats = zeros(5,32,3);
+ICC_Stats = zeros(5,32,4);
 
-Raters_ICC = ["AT", "MJ", "RC"];
+Raters_ICC = ["AT", "MJ", "RC", "GG", "MA"];
 
-ICC_Data = squeeze(Tot_Data(:,2:4,:,ismember(raters,Raters_ICC)));
+ICC_Data = squeeze(data_from_mcp(:,2:5,:,ismember(raters,Raters_ICC)));
 
 % n = number of samples, k = number of raters
 [~,~,n,k] = size(ICC_Data);

@@ -2,13 +2,13 @@ clear
 clc
 fclose('all');
 
-% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_mniTransform';
-data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input';
+data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input';
+% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input';
 
 patient_files = dir(fullfile([data_dir, '\input_mniTransform']));
 patient_files = patient_files(~[patient_files.isdir]);
 
-for data = 1:length(patient_files)
+for data = 1:length(patient_files)  
     [data_table] = read_fcsv_mni(patient_files(data));
     df_raters{data} = data_table;
 end
@@ -77,7 +77,7 @@ mni_rater_standard_rep = repmat(mni_rater_standard,1,1,length(Sub_Comp),length(r
 mni_rater_standard_diff = Tot_Data - mni_rater_standard_rep;
 mni_rater_standard_eudiff = sqrt(mni_rater_standard_diff(:,2,:,:).^2 + mni_rater_standard_diff(:,3,:,:).^2 + mni_rater_standard_diff(:,4,:,:).^2);
 mni_rater_standard_AFLE_mean = squeeze(mean(mni_rater_standard_eudiff,3));
-
+mni_rater_standard_AFLE_SD = squeeze(std(mni_rater_standard_eudiff,0,[3 4]));
 
 % Preliminary figure
 for fid = 1:32
@@ -160,3 +160,16 @@ line([0,0], [0,0], 2*zl, 'LineWidth', 1, 'Color', 'k');
 xlabel('X coord')
 ylabel('Y coord')
 zlabel('Z coord')
+
+
+%% Plot matrix of AFRE, mean AFRE across raters for all subjects and AFIDs
+
+%Mean AFRE across raters (using rater standard)
+
+Rater_AFRE = (squeeze(mean(mni_rater_standard_eudiff,4)))';
+Rater_AFRE(:,33) = 0;
+Rater_AFRE(42,:) = 0;
+pcolor(Rater_AFRE);
+colormap(jet);
+colorbar;
+
