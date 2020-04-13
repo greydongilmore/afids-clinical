@@ -229,3 +229,14 @@ ICC_Stats(5,:,:) = (ICC_Stats(1,:,:) - ICC_Stats(4,:,:))./(ICC_Stats(1,:,:) + IC
 Final_ICC = squeeze(ICC_Stats(5,:,:));
 
 
+
+%% Plot matrix of AFRE, mean AFRE across raters for all subjects and AFIDs
+
+%Mean AFLE across raters (using rater standard)
+
+Rater_AFLE = (squeeze(mean(Tot_eudiff,4)))';
+Rater_AFLE(:,33) = 0;
+Rater_AFLE(42,:) = 0;
+pcolor(Rater_AFLE);
+colormap(jet);
+colorbar;
