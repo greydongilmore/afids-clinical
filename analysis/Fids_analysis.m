@@ -5,7 +5,7 @@ fclose('all');
 data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 % data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
 
-sub_ignore = [];
+sub_ignore = [169];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -236,7 +236,10 @@ Final_ICC = squeeze(ICC_Stats(5,:,:));
 
 Rater_AFLE = (squeeze(mean(Tot_eudiff,4)))';
 Rater_AFLE(:,33) = 0;
-Rater_AFLE(42,:) = 0;
+Rater_AFLE(length(Sub_Comp)+1,:) = 0;
 pcolor(Rater_AFLE);
 colormap(jet);
 colorbar;
+caxis([0 10]);
+xticks(0.5:1:32.5);
+xticklabels(0:1:32);

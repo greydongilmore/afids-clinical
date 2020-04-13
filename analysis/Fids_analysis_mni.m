@@ -22,7 +22,7 @@ raters = ["AT";"GG";"MA";"MJ";"RC"];
 % Generates arrays for subjects completed by each rater
 Sub = {};
 Size_sub = [];
-sub_ignore = [];
+sub_ignore = [169];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
     sub_temp = unique(Data.subject(idx,:), 'rows');
@@ -168,8 +168,10 @@ zlabel('Z coord')
 
 Rater_AFRE = (squeeze(mean(mni_rater_standard_eudiff,4)))';
 Rater_AFRE(:,33) = 0;
-Rater_AFRE(42,:) = 0;
+Rater_AFRE(length(Sub_Comp)+1,:) = 0;
 pcolor(Rater_AFRE);
 colormap(jet);
 colorbar;
-
+caxis([0 10]);
+xticks(0.5:1:32.5);
+xticklabels(0:1:32);
