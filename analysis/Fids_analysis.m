@@ -2,17 +2,10 @@ clear
 clc
 fclose('all');
 
-<<<<<<< HEAD
-% data_dir = 'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid';
 data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-% data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
-=======
-data_dir = '/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid';
-% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-%data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
->>>>>>> c31ec08386d9b2abe84aee7029cb6ed627330b22
+% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
 
-sub_ignore = [];
+sub_ignore = [169];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -190,11 +183,11 @@ zlabel('Z coord')
 % Goal is calculate ICC for each fiducial for each axis
 
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
-ICC_Stats = zeros(5,32,3);
+ICC_Stats = zeros(5,32,4);
 
-Raters_ICC = ["AT", "MJ", "RC"];
+Raters_ICC = ["AT", "MJ", "RC", "GG", "MA"];
 
-ICC_Data = squeeze(Tot_Data(:,2:4,:,ismember(raters,Raters_ICC)));
+ICC_Data = squeeze(data_from_mcp(:,2:5,:,ismember(raters,Raters_ICC)));
 
 % n = number of samples, k = number of raters
 [~,~,n,k] = size(ICC_Data);
@@ -236,3 +229,17 @@ ICC_Stats(5,:,:) = (ICC_Stats(1,:,:) - ICC_Stats(4,:,:))./(ICC_Stats(1,:,:) + IC
 Final_ICC = squeeze(ICC_Stats(5,:,:));
 
 
+
+%% Plot matrix of AFRE, mean AFRE across raters for all subjects and AFIDs
+
+%Mean AFLE across raters (using rater standard)
+
+Rater_AFLE = (squeeze(mean(Tot_eudiff,4)))';
+Rater_AFLE(:,33) = 0;
+Rater_AFLE(length(Sub_Comp)+1,:) = 0;
+pcolor(Rater_AFLE);
+colormap(jet);
+colorbar;
+caxis([0 10]);
+xticks(0.5:1:32.5);
+xticklabels(0:1:32);

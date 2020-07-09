@@ -5,9 +5,14 @@ fclose('all');
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_mniTransform';
 data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_mniTransform';
 patient_files = dir(fullfile(data_dir));
+
+data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input';
+% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input';
+
+patient_files = dir(fullfile([data_dir, '\input_mniTransform']));
 patient_files = patient_files(~[patient_files.isdir]);
 
-for data = 1:length(patient_files)
+for data = 1:length(patient_files)  
     [data_table] = read_fcsv_mni(patient_files(data));
     df_raters{data} = data_table;
 end
@@ -21,7 +26,7 @@ raters = ["AT";"GG";"MA";"MJ";"RC"];
 % Generates arrays for subjects completed by each rater
 Sub = {};
 Size_sub = [];
-sub_ignore = [];
+sub_ignore = [169];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
     sub_temp = unique(Data.subject(idx,:), 'rows');
@@ -75,6 +80,57 @@ MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
 
 %% Generate mean coordinates for gold standard + non-gold standard raters
 
+%## Load Jons MNI standard
+patient_files = dir(fullfile([data_dir, '\mni_jon_standard']));
+patient_files = patient_files(endsWith({patient_files.name},'.mat'));
+
+load([patient_files.folder , '\' , patient_files.name]);
+mni_jon_standard_rep = repmat(mni_jon_standard,1,1,length(Sub_Comp),length(raters));
+mni_jon_standard_diff = Tot_Data - mni_jon_standard_rep;
+mni_jon_standard_eudiff = sqrt(mni_jon_standard_diff(:,2,:,:).^2 + mni_jon_standard_diff(:,3,:,:).^2 + mni_jon_standard_diff(:,4,:,:).^2);
+mni_jon_standard_AFLE_mean = squeeze(mean(mni_jon_standard_eudiff,3));
+
+%## Load Raters MNI standard
+patient_files = dir(fullfile([data_dir, '\mni_rater_standard']));
+patient_files = patient_files(endsWith({patient_files.name},'.mat'));
+
+load([patient_files.folder , '\' , patient_files.name]);
+mni_rater_standard_rep = repmat(mni_rater_standard,1,1,length(Sub_Comp),length(raters));
+mni_rater_standard_diff = Tot_Data - mni_rater_standard_rep;
+mni_rater_standard_eudiff = sqrt(mni_rater_standard_diff(:,2,:,:).^2 + mni_rater_standard_diff(:,3,:,:).^2 + mni_rater_standard_diff(:,4,:,:).^2);
+mni_rater_standard_AFLE_mean = squeeze(mean(mni_rater_standard_eudiff,3));
+mni_rater_standard_AFLE_SD = squeeze(std(mni_rater_standard_eudiff,0,[3 4]));
+
+% Preliminary figure
+for fid = 1:32
+    plot3(mni_rater_standard_diff(fid,2),mni_rater_standard_diff(fid,3),mni_rater_standard_diff(fid,4),'o','Color','b','MarkerSize',8,'MarkerFaceColor',[217/255,1,1])
+%     text(mni_rater_standard_diff(fid,2),mni_rater_standard_diff(fid,3),mni_rater_standard_diff(fid,4),num2str(fid),'FontSize',11,'FontWeight','bold')
+    hold on
+    
+    plot3(mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4),'o','Color','y','MarkerSize',8,'MarkerFaceColor',[217/255,1,1])
+%     text(mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4),num2str(fid),'FontSize',11,'FontWeight','bold')
+    
+    xyz = vertcat([mni_rater_standard_diff(fid,2),mni_rater_standard_diff(fid,3),mni_rater_standard_diff(fid,4)],...
+    [mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4)]);
+    plot3(xyz(:,1),xyz(:,2), xyz(:,3),'k-')
+    eudiff = sqrt((xyz(2,1)-xyz(1,1)).^2 + (xyz(2,2)-xyz(1,2)).^2 + (xyz(2,3)-xyz(1,3)).^2);
+    text(sum(xyz(:,1))/2, sum(xyz(:,2))/2, sum(xyz(:,3))/2, [num2str(fid), ': ', num2str(eudiff)],'FontSize',11,'FontWeight','bold')
+end
+grid on
+axis equal
+xl = max(abs(xlim()));xl = linspace(xl,-xl,2);
+yl = max(abs(ylim()));yl = linspace(yl,-yl,2);
+zl = max(abs(zlim()));zl = linspace(zl,-zl,2);
+line(2*xl, [0,0], [0,0], 'LineWidth', 1, 'Color', 'k');
+line([0,0], 2*yl, [0,0], 'LineWidth', 1, 'Color', 'k');
+line([0,0], [0,0], 2*zl, 'LineWidth', 1, 'Color', 'k');
+
+xlabel('X coord')
+ylabel('Y coord')
+zlabel('Z coord')
+
+
+
 GS_raters = ["GG", "MA"];
 
 GS_mean = squeeze(mean(Tot_Data(:,:,:,ismember(raters,GS_raters)),4));
@@ -126,3 +182,18 @@ line([0,0], [0,0], 2*zl, 'LineWidth', 1, 'Color', 'k');
 xlabel('X coord')
 ylabel('Y coord')
 zlabel('Z coord')
+
+
+%% Plot matrix of AFRE, mean AFRE across raters for all subjects and AFIDs
+
+%Mean AFRE across raters (using rater standard)
+
+Rater_AFRE = (squeeze(mean(mni_rater_standard_eudiff,4)))';
+Rater_AFRE(:,33) = 0;
+Rater_AFRE(length(Sub_Comp)+1,:) = 0;
+pcolor(Rater_AFRE);
+colormap(jet);
+colorbar;
+caxis([0 10]);
+xticks(0.5:1:32.5);
+xticklabels(0:1:32);
