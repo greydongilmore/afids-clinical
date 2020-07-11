@@ -2,32 +2,38 @@ clear
 clc
 fclose('all');
 
-% % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_mniTransform';
-% % data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_mniTransform';
-% % patient_files = dir(fullfile(data_dir));
+% Dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_mniTransform_fmriprep';
+Dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
 
-% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input';
-% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input';
-data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
+data_dir = ([Dir, '\input_mniTransform_fmriprep']);
 
-patient_files = dir(fullfile([data_dir, '\input_mniTransform']));
-patient_files = patient_files(~[patient_files.isdir]);
+sub_ignore = [169];
 
-for data = 1:length(patient_files)  
-    [data_table] = read_fcsv_mni(patient_files(data));
-    df_raters{data} = data_table;
+raters = dir(data_dir);
+raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
+df_raters = cell(1,1);
+
+iter_cnt = 1;
+for irater = 1:length(raters)
+    patient_files = dir(fullfile(data_dir,raters(irater).name));
+    patient_files = patient_files([patient_files.isdir] & ~strcmp({patient_files.name},'.') & ~strcmp({patient_files.name},'..'));
+    for isub = 1:length(patient_files)
+        fileN = dir(fullfile(data_dir,raters(irater).name, patient_files(isub).name));
+        fileN = fileN(~strcmp({fileN.name},'.') & ~strcmp({fileN.name},'..'));
+        [data_table] = read_fcsv(fileN, raters(irater).name, patient_files(isub).name);
+        df_raters{iter_cnt} = data_table;
+        iter_cnt = iter_cnt + 1;
+    end
 end
-
 
 Data = vertcat(df_raters{:});
 
 % List of raters
-raters = ["AT";"GG";"MA";"MJ";"RC"];
+raters = string(unique(Data.rater,'rows'));
 
 % Generates arrays for subjects completed by each rater
 Sub = {};
 Size_sub = [];
-sub_ignore = [169];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
     sub_temp = unique(Data.subject(idx,:), 'rows');
@@ -82,7 +88,7 @@ MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
 %% Generate mean coordinates for gold standard + non-gold standard raters
 
 %## Load Jons MNI standard
-patient_files = dir(fullfile([data_dir, '\mni_jon_standard']));
+patient_files = dir(fullfile([Dir, '\mni_jon_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
@@ -92,7 +98,7 @@ mni_jon_standard_eudiff = sqrt(mni_jon_standard_diff(:,2,:,:).^2 + mni_jon_stand
 mni_jon_standard_AFLE_mean = squeeze(mean(mni_jon_standard_eudiff,3));
 
 %## Load Raters MNI standard
-patient_files = dir(fullfile([data_dir, '\mni_rater_standard']));
+patient_files = dir(fullfile([Dir, '\mni_rater_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
