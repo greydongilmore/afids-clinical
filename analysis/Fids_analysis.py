@@ -112,16 +112,16 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 			rater_labels = tempData['rater'].values
 			if analysis == 1:
 				plot_title = 'Distance from the average of expert raters'
-				file_name = 'distance_from_expert_mean.png'
+				file_name = 'distance_from_expert_mean.svg'
 				tempData = tempData.loc[:,'x':'z'].values - expert_mean.loc[expert_mean['fid'].isin([data_cnt]),'x':'z'].values
 			elif analysis == 2:
 				plot_title = 'Distance from the average of all raters'
-				file_name = 'distance_from_all_raters_mean.png'
+				file_name = 'distance_from_all_raters_mean.svg'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
 			
 			elif analysis == 3:
 				plot_title = 'Distance from average MCP'
-				file_name = 'distance_from_avg_mcp_.png'
+				file_name = 'distance_from_avg_mcp_.svg'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
 				
 			for i in range(len(rater_labels)): #plot each point + it's index as text above
@@ -181,7 +181,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 		plt.close()
 
 #%%
-raters = os.listdir(data_dir)
+raters = [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
 rater_final = pd.DataFrame({})
 iter_cnt = 0
 for irater in raters:
