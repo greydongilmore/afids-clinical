@@ -5,7 +5,7 @@ fclose('all');
 data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 % data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
 
-sub_ignore = [169];
+sub_ignore = [146];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -243,8 +243,8 @@ colorbar;
 caxis([0 10]);
 xticks(0.5:1:32.5);
 xticklabels(0:1:32);
-yticks(0.5:5:40.5);
-yticklabels(0:5:40);
+yticks(0.5:5:39.5);
+yticklabels(0:5:39);
 
 % Bar plot + SD
 

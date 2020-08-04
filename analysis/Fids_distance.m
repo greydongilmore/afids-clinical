@@ -6,7 +6,7 @@ fclose('all');
 data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 % data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
-sub_ignore = [169];
+sub_ignore = [146];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -152,7 +152,7 @@ yticklabels(0:1:32);
 Mean_Diff_Dist = Mean_Dist_Oas - Mean_Dist_PD;
 pcolor(Mean_Diff_Dist);
 colorbar;
-colormap(jet);
+colormap('redblue');
 caxis([-5 5]);
 xticks(0.5:1:32.5);
 xticklabels(0:1:32);
