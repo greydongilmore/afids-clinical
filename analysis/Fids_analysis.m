@@ -243,3 +243,17 @@ colorbar;
 caxis([0 10]);
 xticks(0.5:1:32.5);
 xticklabels(0:1:32);
+yticks(0.5:5:40.5);
+yticklabels(0:5:40);
+
+% Bar plot + SD
+
+bar(1:32, Total_AFLE_mean);
+hold on
+er = errorbar(1:32, Total_AFLE_mean, [], Total_AFLE_SD);
+er.Color = [0 0 0];                            
+er.LineStyle = 'none';
+xticks([])
+yticks(0:1:5);
+yticklabels(0:1:5);
+
