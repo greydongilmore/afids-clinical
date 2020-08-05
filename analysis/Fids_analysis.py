@@ -18,7 +18,7 @@ plt.rcdefaults()
 plt.rc('xtick.major', size = 0, width=0)
 plt.rc('ytick.major', size = 0, width=0)
 
-data_dir = r'/home/ggilmore/Documents/GitHub/afids_parkinsons/input/input_fid'
+data_dir = r'/home/greydon/Documents/GitHub/afids_parkinsons/input/input_fid'
 #data_dir = r'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid'
 
 show_only = True
@@ -60,6 +60,40 @@ fid_dic = {1: 'AC',
 		   32: 'LOSF'
 		   }
 
+fid_desc = {1: 'AC',
+		   2: 'PC',
+		   3: 'Infracollicular Sulcus',
+		   4: 'PMJ',
+		   5: 'Superior IPF',
+		   6: 'Right Superior LMS',
+		   7: 'Left Superior LMS',
+		   8: 'Right Inferior LMS',
+		   9: 'Left Inferior LMS',
+		   10: 'Culmen',
+		   11: 'Intermammillary Sulcus',
+		   12: 'Right Mammilary Body',
+		   13: 'Left Mammilary Body',
+		   14: 'Pineal Gland',
+		   15: 'Right LV at AC',
+		   16: 'Left LV at AC',
+		   17: 'Right LV at PC',
+		   18: 'Left LV at PC',
+		   19: 'Genu of CC',
+		   20: 'Splenium of CC',
+		   21: 'Right AL Temporal Horn',
+		   22: 'Left AL Tempral Horn',
+		   23: 'R. Sup. AM Temporal Horn',
+		   24: 'L. Sup. AM Temporal Horn',
+		   25: 'R Inf. AM Temp Horn',
+		   26: 'L Inf. AM Temp Horn',
+		   27: 'Right IG Origin',
+		   28: 'Left IG Origin',
+		   29: 'R Ventral Occipital Horn',
+		   30: 'L Ventral Occipital Horn',
+		   31: 'R Olfactory Fundus',
+		   32: 'L Olfactory Fundus'
+		   }
+
 def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 	random.seed(1)
 	color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(raters))]
@@ -78,16 +112,16 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 			rater_labels = tempData['rater'].values
 			if analysis == 1:
 				plot_title = 'Distance from the average of expert raters'
-				file_name = 'distance_from_expert_mean.png'
+				file_name = 'distance_from_expert_mean.svg'
 				tempData = tempData.loc[:,'x':'z'].values - expert_mean.loc[expert_mean['fid'].isin([data_cnt]),'x':'z'].values
 			elif analysis == 2:
 				plot_title = 'Distance from the average of all raters'
-				file_name = 'distance_from_all_raters_mean.png'
+				file_name = 'distance_from_all_raters_mean.svg'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
 			
 			elif analysis == 3:
 				plot_title = 'Distance from average MCP'
-				file_name = 'distance_from_avg_mcp_.png'
+				file_name = 'distance_from_avg_mcp_.svg'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
 				
 			for i in range(len(rater_labels)): #plot each point + it's index as text above
@@ -147,7 +181,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 		plt.close()
 
 #%%
-raters = os.listdir(data_dir)
+raters = [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
 rater_final = pd.DataFrame({})
 iter_cnt = 0
 for irater in raters:
@@ -323,6 +357,46 @@ if not show_only:
 	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
 	plt.close()
 
+#%%
+output_dir = r'/home/greydon/Documents/GitHub/afids_parkinsons/output/avg_fcsv'
+overall_mean = Data_comp.groupby(['subject','fid'])['x','y','z'].mean().reset_index()
+
+for isub in np.unique(overall_mean['subject']):
+	
+	filename = "_".join(['sub-'+str(isub).zfill(3), 'FID32', 'T1w', 'standard.fcsv'])
+	output_fname = os.path.join(output_dir, filename)
+	
+	with open(output_fname, 'w') as fid:
+		fid.write("# Markups fiducial file version = 4.10\n")
+		fid.write("# CoordinateSystem = 0\n")
+		fid.write("# columns = id,x,y,z,ow,ox,oy,oz,vis,sel,lock,label,desc,associatedNodeID\n")
+	
+	fid_results = pd.DataFrame({})
+	cnt = 1
+	for ipoint in range(len(overall_mean[overall_mean['subject']==isub])):
+		fid_out = {}
+		fid_out['id']=str(cnt)
+		fid_out['x']=str(overall_mean[overall_mean['subject']==isub]['x'].values[ipoint])
+		fid_out['y']=str(overall_mean[overall_mean['subject']==isub]['y'].values[ipoint])
+		fid_out['z']=str(overall_mean[overall_mean['subject']==isub]['z'].values[ipoint])
+		fid_out['ow']=float(0)
+		fid_out['ox']=float(0)
+		fid_out['oy']=float(0)
+		fid_out['oz']=float(1)
+		fid_out['vis']=int(1)
+		fid_out['sel']=int(1)
+		fid_out['lock']=int(1)
+		fid_out['label']=int(overall_mean[overall_mean['subject']==isub]['fid'].values[ipoint])
+		fid_out['desc']=fid_desc[overall_mean[overall_mean['subject']==isub]['fid'].values[ipoint]]
+		fid_out['associatedNodeID']=''
+		
+		fid_results = pd.concat([fid_results, pd.DataFrame([fid_out])], axis = 0)
+		
+		cnt+=1
+	
+	fid_results.to_csv(output_fname, sep=',', index=False, line_terminator="", mode='a', float_format='%.3f', header=False)
+	
+		
 #%%
 rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
 

@@ -2,12 +2,12 @@ clear
 clc
 fclose('all');
 
-% Dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_mniTransform_fmriprep';
-Dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
+Dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons';
+% Dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
 
-data_dir = ([Dir, '\input_mniTransform_fmriprep']);
+data_dir = ([Dir, '\input\input_mniTransform_fmriprep']);
 
-sub_ignore = [169];
+sub_ignore = [146];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
@@ -70,7 +70,7 @@ end
 %% Load MNI mean data from Jon's paper (i.e. gold standard MNI (gs MNI))
 
 % Generate array with fid number, x, y and z coordinates for MNI mean
-load('C:\Users\moham\Documents\GitHub\afids_parkinsons\analysis\MNI_mean.mat');
+load([Dir, '\analysis\MNI_mean.mat']);
 MNI_mean = table2array(data_table(:,1:4));
 
 % Difference between each fiducial placed and gs MNI + euclidian distance
@@ -88,7 +88,7 @@ MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
 %% Generate mean coordinates for gold standard + non-gold standard raters
 
 %## Load Jons MNI standard
-patient_files = dir(fullfile([Dir, '\mni_jon_standard']));
+patient_files = dir(fullfile([Dir, '\input\mni_jon_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
@@ -98,7 +98,7 @@ mni_jon_standard_eudiff = sqrt(mni_jon_standard_diff(:,2,:,:).^2 + mni_jon_stand
 mni_jon_standard_AFLE_mean = squeeze(mean(mni_jon_standard_eudiff,3));
 
 %## Load Raters MNI standard
-patient_files = dir(fullfile([Dir, '\mni_rater_standard']));
+patient_files = dir(fullfile([Dir, '\input\mni_rater_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
@@ -204,3 +204,18 @@ colorbar;
 caxis([0 10]);
 xticks(0.5:1:32.5);
 xticklabels(0:1:32);
+yticks(0.5:5:40.5);
+yticklabels(0:5:40);
+
+% Bar plot + SD
+
+AFRE_mean = mean(mni_rater_standard_AFLE_mean,2);
+
+bar(1:32, AFRE_mean);
+hold on
+er = errorbar(1:32, AFRE_mean, [], mni_rater_standard_AFLE_SD);
+er.Color = [0 0 0];                            
+er.LineStyle = 'none';
+xticks([])
+yticks(0:2:12);
+yticklabels(0:2:12);
