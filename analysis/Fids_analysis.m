@@ -2,8 +2,9 @@ clear
 clc
 fclose('all');
 
-data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
+% data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
 % data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
+data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [146];
 
@@ -185,7 +186,7 @@ zlabel('Z coord')
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
 ICC_Stats = zeros(5,32,4);
 
-Raters_ICC = ["AT", "MJ", "RC", "GG", "MA"];
+Raters_ICC = ["AT", "MJ", "RC"];
 
 ICC_Data = squeeze(data_from_mcp(:,2:5,:,ismember(raters,Raters_ICC)));
 
@@ -256,4 +257,14 @@ er.LineStyle = 'none';
 xticks([])
 yticks(0:1:5);
 yticklabels(0:1:5);
+
+
+%% Calculate AFLE by expert and non-expert raters, and run T tests
+
+AFLE_Expert = squeeze(mean(Tot_eudiff(:,:,:,[2,3]),4))';
+AFLE_Exp_SD = squeeze(std(Tot_eudiff(:,:,:,[2,3]),0,[3,4]))';
+AFLE_Novice = squeeze(mean(Tot_eudiff(:,:,:,[1,4,5]),4))';
+AFLE_Nov_SD = squeeze(std(Tot_eudiff(:,:,:,[1,4,5]),0,[3,4]))';
+
+[h,p] = ttest(AFLE_Expert,AFLE_Novice,'Alpha',0.05/32);
 
