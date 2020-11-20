@@ -1,7 +1,7 @@
 # afids_parkinsons
 
-* Linear transform is at[/input/input_linear_transform](/input/input_linear_transform)
-* Non-linear transform is at[/input/input_mniTransform_fmriprep](/input/input_mniTransform_fmriprep)
+* Linear transforms of fcsv to MNI are at: [/input/input_linear_transform](/input/input_linear_transform)
+* Non-linear transforms of fcsv to MNI are at: [/input/input_mniTransform_fmriprep](/input/input_mniTransform_fmriprep)
 
 ## FIDS to check
 
