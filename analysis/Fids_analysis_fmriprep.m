@@ -7,7 +7,7 @@ Dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons';
 
 data_dir = ([Dir, '\input\input_mniTransform_fmriprep']);
 
-sub_ignore = [169];
+sub_ignore = [146];
 
 raters = dir(data_dir);
 raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
