@@ -94,7 +94,7 @@ fid_desc = {1: 'AC',
 		   32: 'L Olfactory Fundus'
 		   }
 
-def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
+def plot_fiducials(data_plot, expert_mean, data_dir,analysis=2, showOnly=False):
 	random.seed(1)
 	color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(len(raters))]
 	
@@ -108,7 +108,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 	for ifid in range(4):
 		for jfid in range(8):
 			ax = plt.subplot2grid((4,8),(ifid,jfid), projection='3d')
-			tempData = data[data['fid'].isin([data_cnt])]
+			tempData = data_plot[data_plot['fid'].isin([data_cnt])]
 			rater_labels = tempData['rater'].values
 			if analysis == 1:
 				plot_title = 'Distance from the average of expert raters'
@@ -169,7 +169,6 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 	fig.subplots_adjust(hspace=0.04, wspace=0.02, top=0.90, bottom=0.06, left=0.02,right=0.92) 
 	plt.legend(handles=handles.values(), fontsize=12, bbox_to_anchor=[1.6, 2.5], handletextpad=0.05)
 	fig.suptitle(plot_title, y = 0.98, fontsize=14, fontweight='bold')
-	plt.show()
 	if not showOnly:
 		output_temp = os.path.dirname(data_dir)
 		output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
@@ -177,7 +176,7 @@ def plot_fiducials(data, expert_mean, data_dir,analysis=2, showOnly=False):
 		if not os.path.exists(output_dir):
 			os.mkdir(output_dir)
 			
-		plt.savefig(os.path.join(output_dir, file_name))
+		fig.savefig(os.path.join(output_dir, file_name))
 		plt.close()
 
 #%%
