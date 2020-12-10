@@ -1,4 +1,4 @@
-# afids_parkinsons
+# afids clinical
 
 * Linear transforms of fcsv to MNI are at: [/input/input_linear_transform](/input/input_linear_transform)
 * Non-linear transforms of fcsv to MNI are at: [/input/input_mniTransform_fmriprep](/input/input_mniTransform_fmriprep)
