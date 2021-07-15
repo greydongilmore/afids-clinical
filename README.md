@@ -43,7 +43,7 @@
     </li>
     <li><a href="#usage">Usage</a></li>
       <ul>
-        <li><a href="#Repository Structure">Repository Structure</a></li>
+        <li><a href="#repository-structure">Repository Structure</a></li>
       </ul>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
