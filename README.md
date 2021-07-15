@@ -119,6 +119,11 @@ The repository has the following scheme:
 └── src
     ├── matlab
     └── python
+        ├── antsApplyH5TransformsToSlicerFCSV.py    # applies full ANTS transform to fcsv file of markups points using the **antsApplyTransformsToPoints** ANTS command 
+        ├── antsApplyLinearTransformToSlicerFCSV.py # applies linear component of ANTS transform to fcsv file of markups points using the **antsApplyTransformsToPoints** ANTS command 
+        ├── apply_transform.py                      # to be run within 3D Slicer Python interactor - applies transform to all input fcsv files
+        ├── Fids_analysis.py                        # manuscript analysis and figures
+        ├── registration_decoupling.py              # code used to decouple the linear and non-linear components of the ANTS transform using the **CompositeTransformUtil** ANTS command
         └── requirements.txt
 ```
 
