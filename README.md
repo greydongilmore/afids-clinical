@@ -57,8 +57,8 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This companion repository is for the article "Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease
-Brain Structure and Function" submitted in the journal *Brain Structure & Function*.
+This companion repository is for the article **Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease
+Brain Structure and Function** submitted to the journal *Brain Structure & Function*.
 
 ### Built With
 
@@ -72,7 +72,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-* No Prerequisites required. Any Python3 version will suffice.
+* No Prerequisites required
 
 ### Installation
 
@@ -143,8 +143,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Mohamad Abbass - mohamad.abbass26@gmail.com
-Greydon Gilmore - [@GilmoreGreydon](https://twitter.com/GilmoreGreydon) - greydon.gilmore@gmail.com
+* Mohamad Abbass - mohamad.abbass26@gmail.com
+* Greydon Gilmore - [@GilmoreGreydon](https://twitter.com/GilmoreGreydon) - greydon.gilmore@gmail.com
 
 Project Link: [https://github.com/greydongilmore/afids-clinical](https://github.com/greydongilmore/afids-clinical)
 
