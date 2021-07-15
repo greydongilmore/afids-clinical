@@ -57,12 +57,13 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This code snippet will create an epoch from an EDF+ file given a start and end time in seconds.
+This companion repository is for the article "Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease
+Brain Structure and Function" submitted in the journal *Brain Structure & Function*.
 
 ### Built With
 
-* Python version: 3.9
-
+* Python version: 3.8
+* Matlab version: vR2018b
 
 <!-- GETTING STARTED -->
 ## Getting Started
