@@ -9,8 +9,6 @@ import os
 import glob
 import subprocess
 import pandas as pd
-import transforms3d
-import h5py
 import numpy as np
 
 def convertSlicerRASFCSVtoAntsLPSCSV( input_fcsv, output_csv ):
