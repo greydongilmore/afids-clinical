@@ -43,17 +43,18 @@ def convertAntsLPSCSVtoSlicerRASFCSV( input_csv, output_fcsv, ref_fcsv ):
         f.seek(0) # rewind, start at the top
         f.write( lines[0] + lines[1] + old ) # add expected Slicer header
 
-
 def run_command(cmdLineArguments):
 	process = subprocess.Popen(cmdLineArguments, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
 	stdout = process.communicate()[0]
 	p_status = process.wait()
-		
-input_bids_dir=r'/media/veracrypt6/projects/templateProjects/fmriprep/output/fmriprep'
-input_fcsv_dir=r'/home/greydon/Documents/GitHub/afids_parkinsons/input/input_fid'
-output_dir=r'/home/greydon/Documents/GitHub/afids_parkinsons/input/input_linear_transform'
 
-raters = ['AT','MA','MJ','RC']
+#%%
+
+input_bids_dir=r'/media/veracrypt6/projects/templateProjects/fmriprep/output/fmriprep'
+input_fcsv_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_native'
+output_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_02'
+
+raters = ['GG','AT','MA','MJ','RC']
 
 if not os.path.exists(output_dir):
 	os.makedirs(output_dir)
@@ -82,14 +83,11 @@ for irate in raters:
 		if not os.path.exists(os.path.dirname(output_fcsv)):
 			os.makedirs(os.path.dirname(output_fcsv))
 		
-		
 		if not os.path.exists(affineT):
 			cmd= f'cd {os.path.join(input_bids_dir, subj, "anat")} && /opt/ANTs/bin/CompositeTransformUtil --disassemble {os.path.basename(input_warp_to_MNI152)} {os.path.basename(input_warp_to_MNI152_dis)}'
 			run_command(cmd)
 		
-		
 		convertSlicerRASFCSVtoAntsLPSCSV( ifile, tmp_slicer_to_ants_csv )
-		
 		
 		cmd = ' '.join(['/opt/ANTs/bin/antsApplyTransformsToPoints',
 				  '-d', str(3),
