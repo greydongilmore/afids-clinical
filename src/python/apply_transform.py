@@ -4,6 +4,7 @@ Created on Tue Nov 19 16:18:55 2019
 
 @author: User
 """
+
 import os
 logic = slicer.vtkSlicerTransformLogic()
 output_dir = r'D:\projects\templateProject\coreg'
@@ -11,10 +12,11 @@ github_out = r'C:\Users\Greydon\Documents\GitHub\afids_parkinsons\input\input_mn
 input_dir = r'D:\projects\templateProject'
 raters = ['AT','MA','MJ','RC','GG']
 
+
 subjects = [x.split('-')[1] for x in os.listdir(r'C:\Users\Greydon\Documents\GitHub\afids_parkinsons\input\input_fid\GG')]
 for isub in subjects:
 	mni_transform(isub)
-	
+
 def mni_transform(subject):
 	isub = 'sub-' + subject.zfill(3)
 	transform_file = [x for x in os.listdir(os.path.join(input_dir, 'coreg', isub)) if x.endswith('mniTransform.tfm')][0]
