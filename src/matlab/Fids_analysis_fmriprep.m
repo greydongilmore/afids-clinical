@@ -5,7 +5,10 @@ fclose('all');
 Dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons';
 % Dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
 
-data_dir = ([Dir, '\input\input_mniTransform_fmriprep']);
+% transf2use '_nlin' to analyze non-linear transformation, '_lin' to
+% analyze linear transformation
+data_dir = ([Dir, '\data\input_fid_MNI_linear_combined']);
+transf2use = '_lin';
 
 sub_ignore = [146];
 
@@ -20,6 +23,7 @@ for irater = 1:length(raters)
     for isub = 1:length(patient_files)
         fileN = dir(fullfile(data_dir,raters(irater).name, patient_files(isub).name));
         fileN = fileN(~strcmp({fileN.name},'.') & ~strcmp({fileN.name},'..'));
+        fileN = fileN(contains({fileN.name},transf2use));
         [data_table] = read_fcsv(fileN, raters(irater).name, patient_files(isub).name);
         df_raters{iter_cnt} = data_table;
         iter_cnt = iter_cnt + 1;
@@ -70,8 +74,8 @@ end
 %% Load MNI mean data from Jon's paper (i.e. gold standard MNI (gs MNI))
 
 % Generate array with fid number, x, y and z coordinates for MNI mean
-load([Dir, '\analysis\MNI_mean.mat']);
-MNI_mean = table2array(data_table(:,1:4));
+load([Dir, '\data\fid_standards\MNI152NLin2009cAsym_standard_afids\MNI152NLin2009cAsym_standard.mat']);
+MNI_mean = mni_jon_standard(:,1:4);
 
 % Difference between each fiducial placed and gs MNI + euclidian distance
 
@@ -87,18 +91,8 @@ MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
 
 %% Generate mean coordinates for gold standard + non-gold standard raters
 
-%## Load Jons MNI standard
-patient_files = dir(fullfile([Dir, '\input\mni_jon_standard']));
-patient_files = patient_files(endsWith({patient_files.name},'.mat'));
-
-load([patient_files.folder , '\' , patient_files.name]);
-mni_jon_standard_rep = repmat(mni_jon_standard,1,1,length(Sub_Comp),length(raters));
-mni_jon_standard_diff = Tot_Data - mni_jon_standard_rep;
-mni_jon_standard_eudiff = sqrt(mni_jon_standard_diff(:,2,:,:).^2 + mni_jon_standard_diff(:,3,:,:).^2 + mni_jon_standard_diff(:,4,:,:).^2);
-mni_jon_standard_AFLE_mean = squeeze(mean(mni_jon_standard_eudiff,3));
-
 %## Load Raters MNI standard
-patient_files = dir(fullfile([Dir, '\input\mni_rater_standard']));
+patient_files = dir(fullfile([Dir, '\data\fid_standards\MNI152NLin2009bAsym_rater_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
@@ -114,11 +108,11 @@ for fid = 1:32
 %     text(mni_rater_standard_diff(fid,2),mni_rater_standard_diff(fid,3),mni_rater_standard_diff(fid,4),num2str(fid),'FontSize',11,'FontWeight','bold')
     hold on
     
-    plot3(mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4),'o','Color','y','MarkerSize',8,'MarkerFaceColor',[217/255,1,1])
+    plot3(MNI_Diff(fid,2),MNI_Diff(fid,3),MNI_Diff(fid,4),'o','Color','y','MarkerSize',8,'MarkerFaceColor',[217/255,1,1])
 %     text(mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4),num2str(fid),'FontSize',11,'FontWeight','bold')
     
     xyz = vertcat([mni_rater_standard_diff(fid,2),mni_rater_standard_diff(fid,3),mni_rater_standard_diff(fid,4)],...
-    [mni_jon_standard_diff(fid,2),mni_jon_standard_diff(fid,3),mni_jon_standard_diff(fid,4)]);
+    [MNI_Diff(fid,2),MNI_Diff(fid,3),MNI_Diff(fid,4)]);
     plot3(xyz(:,1),xyz(:,2), xyz(:,3),'k-')
     eudiff = sqrt((xyz(2,1)-xyz(1,1)).^2 + (xyz(2,2)-xyz(1,2)).^2 + (xyz(2,3)-xyz(1,3)).^2);
     text(sum(xyz(:,1))/2, sum(xyz(:,2))/2, sum(xyz(:,3))/2, [num2str(fid), ': ', num2str(eudiff)],'FontSize',11,'FontWeight','bold')
@@ -199,7 +193,7 @@ Rater_AFRE = (squeeze(mean(mni_rater_standard_eudiff,4)))';
 Rater_AFRE(:,33) = 0;
 Rater_AFRE(length(Sub_Comp)+1,:) = 0;
 pcolor(Rater_AFRE);
-colormap(jet);
+colormap(parula);
 colorbar;
 caxis([0 10]);
 xticks(0.5:1:32.5);
