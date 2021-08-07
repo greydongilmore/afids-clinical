@@ -87,7 +87,7 @@ def run_command(cmdLineArguments):
 
 input_bids_dir=r'/media/veracrypt6/projects/templateProjects/fmriprep/output/fmriprep'
 input_fcsv_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_native'
-output_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined'
+output_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined_02'
 
 raters = ['GG','AT','MA','MJ','RC']
 
@@ -157,7 +157,9 @@ for irate in raters:
 				  '-d', str(3),
 				  '-i', '"'+tmp_slicer_to_LPS_csv+'"',
 				  '-o', '"'+tmp_slicer_to_LPS_transformed_nlin_csv+'"',
-				  '-t', ''.join(['"[', '"', input_transform_from_MNI152, '"', ",", str(0), ']"'])])
+				  '-t', ''.join(['"[', '"', affine_from_MNI152, '"', ",", str(0), ']"']),
+				  '-t', '"'+displacement_from_MNI152+'"'
+				  ])
 		
 		run_command(cmd_nlin)
 		
