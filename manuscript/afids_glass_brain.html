@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Connectome plot</title>
+    <title>Clinical AFIDS</title>
     <meta charset="UTF-8" />
     
         <script>/*! jQuery v3.3.1 | (c) JS Foundation and other contributors | jquery.org/license */
@@ -348,11 +348,97 @@ function decodeHemisphere(surfaceInfo, surface, hemisphere){
 
             });
     </script>
+    <style>
+        .column-left{ float: left; width: 60%; position: relative; }
+        .column-center{ display: inline-block; width: 20%; position: relative; }
+        .column-right{ float: right; width: 20%; position: relative; }
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+
+        .container {
+            display: table;
+            width: 100%;
+            padding-bottom: 12px;
+        }
+
+        .dot {
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          display: table-cell;
+          position: relative;
+          float:  left;
+        }
+
+        label {
+            float: left;
+            font-weight: bold;
+            font-size:12px;
+            line-height: 1;
+            padding-left: 12px;
+            padding-top: .12cm;
+            display: table-cell;
+            margin: 0;
+            position: relative;
+        }
+        
+    </style>
 </head>
 
 <body>
-
-    <div id="connectome-plot"></div>
+    
+    <div class="row">
+        <div id="connectome-plot" class="column-left"></div>
+        <div class="column-center">
+            <p style="margin-bottom:2cm;"></p>
+            <div class="container">
+                <span class="dot" style="background-color: #00ff00;"></span>
+                <label>Midline Points</label>
+            </div>
+            <div class="container">
+                <span class="dot" style="background-color: #0000ff"></span>
+                <label>Off-Midline Points</label>
+            </div>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">1: Anterior Commissure</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">2: Posterior Commissure</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">3: Infracollicular Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">4: Pontomesenphalic Junction</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">5: Superior Interpeduncular fossa</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">6: R Superior Lateral Mesencepahlic Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">7: L Superior Lateral Mesencepahlic Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">8: R Inferior Lateral Mesencepahlic Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">9: L Inferior Lateral Mesencepahlic Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">10: Culmen</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">11: Intermammillary Sulcus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">12: R Mammillary Body</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">13: L Mammillary Body</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">14: Pineal Gland</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">15: R Lateral Ventricle at Anterior Commissure</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">16: L Lateral Ventricle at Anterior Commissure</p>
+        </div>
+        <div class="column-right">
+            <p style="margin-bottom:4.12cm;"></p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">17: R Lateral Ventricle at Posterior Commissure</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">18: L Lateral Ventricle at Posterior Commissure</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">19: Genu of Corpus Callosum</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">20: Splenium</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">21: R Anterolateral Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">22: L Anterolateral Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">23: R Superior Anteromedial Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">24: L Superior Anteromedial Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">25: R Inferior Anteromedial Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">26: L Inferior Anteromedial Temporal Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">27: R Indusium Griseum Origin</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">28: L Indusium Griseum Origin</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">29: R Ventral Occipital Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">30: L Ventral Occipital Horn</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">31: R Olfactory Sulcal Fundus</p>
+            <p style="font-weight: normal;font-size:12px;line-height: .8 ;">32: L Olfactory Sulcal Fundus</p>
+        </div>
+    </div>
     <select id="select-view">
         <option value="left">view: Left</option>
         <option value="right">view: Right</option>
