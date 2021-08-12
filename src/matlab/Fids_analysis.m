@@ -3,7 +3,7 @@ clc
 fclose('all');
 
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input\input_fid';
-% data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input\input_fid';
+data_dir = '/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_native';
 data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 
 sub_ignore = [146];
