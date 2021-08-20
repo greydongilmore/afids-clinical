@@ -87,13 +87,14 @@ def run_command(cmdLineArguments):
 
 input_bids_dir=r'/media/veracrypt6/projects/templateProjects/fmriprep/output/fmriprep'
 input_fcsv_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_native'
-output_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined_02'
+output_dir=r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined'
 
 raters = ['GG','AT','MA','MJ','RC']
+raters=['mean']
 
 if not os.path.exists(output_dir):
 	os.makedirs(output_dir)
-	
+
 
 for irate in raters:
 	files = [x for x in glob.glob(input_fcsv_dir+f'/{irate}/*/*.fcsv')]
