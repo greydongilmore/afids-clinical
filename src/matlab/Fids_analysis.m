@@ -9,7 +9,7 @@ data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input\input_fid';
 sub_ignore = [146];
 
 raters = dir(data_dir);
-raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..'));
+raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..') & ~strcmp({raters.name},'mean'));
 df_raters = cell(1,1);
 iter_cnt = 1;
 for irater = 1:length(raters)

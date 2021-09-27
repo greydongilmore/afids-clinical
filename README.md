@@ -95,11 +95,12 @@ To get a local copy up and running follow these simple steps.
 ## Usage
 
 * Ideal AFIDs coordinates in templates ([/data/fid_standards](/data/fid_standards)):
-    * [MNI152NLin2009bAsym](/data/fid_standards/MNI152NLin2009bAsym_rater_standard/MNI152NLin2009bAsym_standard_afids.fcsv)
-    * [PD25](/data/fid_standards/PD25_standard_afids/PD25_standard_afids.fcsv)
-    * [deepbrain7t](/data/fid_standards/deepbrain7t_standard_afids/deepbrain7t_standard_afids.fcsv)
-* Linear transforms of fcsv to MNI are at: [/input/input_linear_transform](/input/input_linear_transform)
-* Non-linear transforms of fcsv to MNI are at: [/input/input_mniTransform_fmriprep](/input/input_mniTransform_fmriprep)
+    * [MNI152NLin2009bAsym](/data/fid_standards/MNI152NLin2009bAsym_rater_standard/MNI152NLin2009bAsym_desc-raterstandard_afids.fcsv)
+    * [PD25](/data/fid_standards/PD25_standard_afids/PD25_desc-standard_afids.fcsv)
+    * [deepbrain7t](/data/fid_standards/deepbrain7t_standard_afids/deepbrain7t_desc-standard_afids.fcsv)
+* Linear and non-linear transforms of fcsv to MNI are at: [/data/input_fid_MNI_linear_combined](/data/input_fid_MNI_linear_combined)
+    * Linear `.fcsv` files end with `_lin.fcsv`
+    * Non-linear `.fcsv` files end with `_nlin.fcsv`
 
 ### Repository Structure
 

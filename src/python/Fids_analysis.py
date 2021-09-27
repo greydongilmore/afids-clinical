@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Spyder Editor
 
-This is a temporary script file.
-"""
-#%%
 import os
 import numpy as np
 import pandas as pd
@@ -12,20 +7,20 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import random
 import matplotlib
-
+from collections import OrderedDict
 
 plt.rcdefaults()
 plt.rc('xtick.major', size = 0, width=0)
 plt.rc('ytick.major', size = 0, width=0)
 
-data_dir = r'/home/greydon/Documents/GitHub/afids_parkinsons/input/input_fid'
+data_dir = r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_native'
+data_mni_dir = r'/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined'
 #data_dir = r'C:\Users\greydon\Documents\github\afids_parkinsons\input\input_fid'
 
 show_only = True
 
-sub_ignore = []
+sub_ignore = [146]
 
-#%%
 fid_dic = {1: 'AC',
 		   2: 'PC',
 		   3: 'ICS',
@@ -112,32 +107,47 @@ def plot_fiducials(data_plot, expert_mean, data_dir,analysis=2, showOnly=False):
 			rater_labels = tempData['rater'].values
 			if analysis == 1:
 				plot_title = 'Distance from the average of expert raters'
-				file_name = 'distance_from_expert_mean.svg'
+				file_name = 'distance_from_expert_mean'
 				tempData = tempData.loc[:,'x':'z'].values - expert_mean.loc[expert_mean['fid'].isin([data_cnt]),'x':'z'].values
 			elif analysis == 2:
 				plot_title = 'Distance from the average of all raters'
-				file_name = 'distance_from_all_raters_mean.svg'
+				file_name = 'distance_from_all_raters_mean'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
-			
 			elif analysis == 3:
 				plot_title = 'Distance from average MCP'
-				file_name = 'distance_from_avg_mcp_.svg'
+				file_name = 'distance_from_avg_mcp'
 				tempData = tempData.loc[:,'x':'z'].values - tempData.loc[:,'x':'z'].mean().values
-				
+			
+			nov_cnt = 1
+			exp_cnt = 1
+			rater_labels_final_tmp = {}
 			for i in range(len(rater_labels)): #plot each point + it's index as text above
-				l1 = ax.scatter(tempData[i,0], tempData[i,1], tempData[i,2], marker='o', c=color[i],edgecolors='black', s=50, label=rater_labels[i])
-				if rater_labels[i] not in handles:
-					handles[rater_labels[i]] = l1
-			 
+				if rater_labels[i] in ('AT','RC','MJ'):
+					rate_label = f"Novice 0{nov_cnt}"
+					nov_cnt += 1
+				else:
+					rate_label = f"Expert 0{exp_cnt}"
+					exp_cnt += 1
+				rater_labels_final_tmp[rate_label] = rater_labels[i]
+			
+			rater_labels_final = {}
+			for irate in sorted(list(rater_labels_final_tmp)):
+				rater_labels_final[irate]=rater_labels_final_tmp[irate]
+			print(rater_labels_final)
+			for irate in list(rater_labels_final):
+				rater_idx = [i for i,x in enumerate(rater_labels) if x == rater_labels_final[irate]][0]
+				l1 = ax.scatter(tempData[rater_idx,0], tempData[rater_idx,1], tempData[rater_idx,2], marker='o', c=color[rater_idx],edgecolors='black', s=50, label=irate)
+				handles[irate] = l1
+			
 			ax.plot((min_val,min_val), (min_val,min_val), (min_val-0.1,max_val+0.1), 'black', linewidth=1.0)
 			
 			ax.set_xlim([min_val,max_val])
 			ax.set_ylim([min_val,max_val])
 			ax.set_zlim([min_val,max_val])
 			
-			ax.set_xlabel('x',labelpad=-15, fontweight='bold')
-			ax.set_ylabel('y',labelpad=-15, fontweight='bold')
-			ax.set_zlabel('z',labelpad=-15, fontweight='bold')
+			ax.set_xlabel('x',labelpad=-15, fontweight='bold', fontsize=14)
+			ax.set_ylabel('y',labelpad=-15, fontweight='bold', fontsize=14)
+			ax.set_zlabel('z',labelpad=-15, fontweight='bold', fontsize=14)
 			
 			ax.get_xaxis().set_ticklabels([])
 			ax.get_yaxis().set_ticklabels([])
@@ -162,25 +172,33 @@ def plot_fiducials(data_plot, expert_mean, data_dir,analysis=2, showOnly=False):
 					
 			ax.view_init(elev=25, azim=44)
 			
-			ax.set_title(str(data_cnt) + ': ' + fid_dic[data_cnt], pad=5, fontweight='bold')
-	
+			ax.set_title(str(data_cnt) + ': ' + fid_dic[data_cnt], pad=2, fontweight='bold', fontsize=16)
+			
 			data_cnt += 1
 			
-	fig.subplots_adjust(hspace=0.04, wspace=0.02, top=0.90, bottom=0.06, left=0.02,right=0.92) 
-	plt.legend(handles=handles.values(), fontsize=12, bbox_to_anchor=[1.6, 2.5], handletextpad=0.05)
-	fig.suptitle(plot_title, y = 0.98, fontsize=14, fontweight='bold')
+	fig.subplots_adjust(hspace=0.15, wspace=0.05, top=0.90, bottom=0.06, left=0.02,right=0.9) 
+	plt.legend(handles=handles.values(), fontsize=12, bbox_to_anchor=[2.1, 2.7], handletextpad=0.05)
+	fig.suptitle(plot_title, y = 0.98, fontsize=22, fontweight='bold')
+	
 	if not showOnly:
-		output_temp = os.path.dirname(data_dir)
-		output_dir = os.path.join(os.path.dirname(output_temp),'output', 'plots')
+		output_dir = os.path.join(data_dir,'plots')
 		
 		if not os.path.exists(output_dir):
-			os.mkdir(output_dir)
-			
-		fig.savefig(os.path.join(output_dir, file_name))
+			os.makedirs(output_dir)
+		
+		plt.savefig(os.path.join(output_dir, f"{file_name}.svg"),transparent=True)
+		plt.savefig(os.path.join(output_dir, f"{file_name}.png"),transparent=True,dpi=450)
+		plt.savefig(os.path.join(output_dir, f"{file_name}_white.png"),transparent=False,dpi=450)
 		plt.close()
-
+		
 #%%
-raters = [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
+
+data_dir_out = r'/home/greydon/Documents/GitHub/afids-clinical/results'
+
+sub_ignore = [146]
+
+raters = [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x)) and 'mean' not in x]
+
 rater_final = pd.DataFrame({})
 iter_cnt = 0
 for irater in raters:
@@ -197,7 +215,7 @@ rater_final.rename(columns={0:'node_id', 1:'x', 2:'y', 3:'z', 4:'ow', 5:'ox',
 							6:'oy', 7:'oz', 8:'vis', 9:'sel', 10:'lock',
 							11:'fid', 12:'description', 13:'associatedNodeID'}, inplace=True)
 
-#%%	
+
 Sub = pd.DataFrame({})
 size = []
 for r in raters:
@@ -213,15 +231,33 @@ full_subs = set(Sub[Sub['rater']==size[0][0]]['subject'].values)
 size = sorted(size, key=lambda tup: tup[1], reverse=True)
 Sub_Comp = list(set(Sub[Sub['rater']==size[0][0]]['subject'].values) & 
 				set(Sub[Sub['rater']==size[1][0]]['subject'].values))
+
 for irate in range(2,len(raters)):
 	Sub_Comp = list(set(Sub_Comp) & set(Sub[Sub['rater']==size[irate][0]]['subject'].values))
 
+Sub_Comp = sorted(Sub_Comp)
 #set(full_subs).difference(Sub[Sub['rater']==size[4][0]]['subject'].values)
 
 Data_comp = rater_final[rater_final['subject'].isin(Sub_Comp)]
 Data_comp = Data_comp.sort_values(['rater','subject', 'fid'], ascending=[True, True,True])
 
-#%%	
+Tot_Data = np.zeros((32,5,len(Sub_Comp),len(raters)))
+for irate in range(len(raters)):
+	for isub in range(len(Sub_Comp)):
+		Tot_Data[:,:,isub,irate] = Data_comp[(Data_comp['rater']==raters[irate]) & (Data_comp['subject']==Sub_Comp[isub])].sort_values(['fid']).loc[:,['fid','x','y','z','subject']]
+
+Tot_mean = np.mean(Tot_Data,3)
+
+N = Tot_mean[:,:,:,np.newaxis]
+Tot_diff = Tot_Data - np.tile(N,[1,1,1,len(raters)])
+Tot_eudiff = np.sqrt(Tot_diff[:,1,:,:]**2 + Tot_diff[:,2,:,:]**2 + Tot_diff[:,3,:,:]**2)
+Rater_AFLE = np.mean(Tot_eudiff,2).T
+
+Rater_AFLE_mean = np.mean(Tot_eudiff,1)
+Rater_AFLE_SD = np.std(Tot_eudiff,1)
+Total_AFLE_mean = np.mean(Rater_AFLE_mean,1)
+Total_AFLE_SD = np.std(Tot_eudiff,1)
+
 
 mcp_point = pd.DataFrame({})
 for r in raters:
@@ -246,8 +282,111 @@ for r in raters:
 			
 data_from_mcp_avg = data_from_mcp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
 
-plot_fiducials(data_from_mcp_avg, None, data_dir, 3, False)
-			
+
+#%%	
+
+sub_ignore = [146]
+
+
+rater_mni_final = pd.DataFrame({})
+iter_cnt = 0
+for irater in raters:
+	patient_files = os.listdir(os.path.join(data_mni_dir, irater))
+	for isub in patient_files:
+		sub_num = int(''.join([s for s in isub if s.isdigit()]))
+		fileN = os.path.join(data_mni_dir, irater,isub, [x for x in os.listdir(os.path.join(data_mni_dir, irater,isub)) if x.endswith('_nlin.fcsv')][0])
+		data_table = pd.read_csv(fileN, skiprows=3, header=None)
+		data_table['rater'] = np.repeat(irater,data_table.shape[0])
+		data_table['subject'] = np.repeat(sub_num,data_table.shape[0])
+		rater_mni_final = pd.concat([rater_mni_final, data_table], axis = 0, ignore_index=True)
+
+rater_mni_lin_final = pd.DataFrame({})
+iter_cnt = 0
+for irater in raters:
+	patient_files = os.listdir(os.path.join(data_mni_dir, irater))
+	for isub in patient_files:
+		sub_num = int(''.join([s for s in isub if s.isdigit()]))
+		fileN = os.path.join(data_mni_dir, irater,isub, [x for x in os.listdir(os.path.join(data_mni_dir, irater,isub)) if x.endswith('_lin.fcsv')][0])
+		data_table = pd.read_csv(fileN, skiprows=3, header=None)
+		data_table['rater'] = np.repeat(irater,data_table.shape[0])
+		data_table['subject'] = np.repeat(sub_num,data_table.shape[0])
+		rater_mni_lin_final = pd.concat([rater_mni_lin_final, data_table], axis = 0, ignore_index=True)
+
+rater_mni_final.rename(columns={0:'node_id', 1:'x', 2:'y', 3:'z', 4:'ow', 5:'ox',
+							6:'oy', 7:'oz', 8:'vis', 9:'sel', 10:'lock',
+							11:'fid', 12:'description', 13:'associatedNodeID'}, inplace=True)
+
+
+rater_mni_lin_final.rename(columns={0:'node_id', 1:'x', 2:'y', 3:'z', 4:'ow', 5:'ox',
+							6:'oy', 7:'oz', 8:'vis', 9:'sel', 10:'lock',
+							11:'fid', 12:'description', 13:'associatedNodeID'}, inplace=True)
+
+
+Sub = pd.DataFrame({})
+size = []
+for r in raters:
+	sub_temp = np.unique(rater_mni_final[rater_mni_final['rater']==r]['subject'])
+	if sub_ignore:
+		sub_temp = [x for x in sub_temp if x not in sub_ignore]
+	data_table = pd.DataFrame({'rater': np.repeat(r,len(sub_temp)), 'subject':sub_temp})
+	Sub = pd.concat([Sub, data_table], axis = 0, ignore_index=True)
+	size.append((r,len(sub_temp)))
+
+full_subs = set(Sub[Sub['rater']==size[0][0]]['subject'].values)
+
+size = sorted(size, key=lambda tup: tup[1], reverse=True)
+Sub_Comp = list(set(Sub[Sub['rater']==size[0][0]]['subject'].values) & 
+				set(Sub[Sub['rater']==size[1][0]]['subject'].values))
+
+for irate in range(2,len(raters)):
+	Sub_Comp = list(set(Sub_Comp) & set(Sub[Sub['rater']==size[irate][0]]['subject'].values))
+
+Sub_Comp = sorted(Sub_Comp)
+
+Data_mni_comp = rater_mni_final[rater_mni_final['subject'].isin(Sub_Comp)]
+Data_mni_comp = Data_mni_comp.sort_values(['rater','subject', 'fid'], ascending=[True, True,True])
+
+Data_mni_lin_comp = rater_mni_lin_final[rater_mni_lin_final['subject'].isin(Sub_Comp)]
+Data_mni_lin_comp = Data_mni_lin_comp.sort_values(['rater','subject', 'fid'], ascending=[True, True,True])
+
+Tot_Data = np.zeros((32,5,len(Sub_Comp),len(raters)))
+Tot_Data_lin = np.zeros((32,5,len(Sub_Comp),len(raters)))
+for irate in range(len(raters)):
+	for isub in range(len(Sub_Comp)):
+		Tot_Data[:,:,isub,irate] = Data_mni_comp[(Data_mni_comp['rater']==raters[irate]) & (Data_mni_comp['subject']==Sub_Comp[isub])].sort_values(['fid']).loc[:,['fid','x','y','z','subject']]
+		Tot_Data_lin[:,:,isub,irate] = Data_mni_lin_comp[(Data_mni_lin_comp['rater']==raters[irate]) & (Data_mni_lin_comp['subject']==Sub_Comp[isub])].sort_values(['fid']).loc[:,['fid','x','y','z','subject']]
+
+
+MNI152NLin2009cAsym_standard = pd.read_csv('/home/greydon/Documents/GitHub/afids-clinical/data/fid_standards/MNI152NLin2009bAsym_rater_standard/MNI152NLin2009bAsym_rater_standard.fcsv', skiprows=2)[['label','x','y','z']].to_numpy()
+N = MNI152NLin2009cAsym_standard[:,:,np.newaxis, np.newaxis]
+MNI_Diff = Tot_Data[:,:4,:,:] - np.tile(N,[1,1,len(Sub_Comp),len(raters)])
+MNI_AFLE = np.sqrt(MNI_Diff[:,1,:,:]**2 + MNI_Diff[:,2,:,:]**2 + MNI_Diff[:,3,:,:]**2)
+MNI_Diff_lin = Tot_Data_lin[:,:4,:,:] - np.tile(N,[1,1,len(Sub_Comp),len(raters)])
+MNI_AFLE_lin = np.sqrt(MNI_Diff_lin[:,1,:,:]**2 + MNI_Diff_lin[:,2,:,:]**2 + MNI_Diff_lin[:,3,:,:]**2)
+
+
+
+MNI_AFLE_rater = np.mean(MNI_AFLE,2).T
+MNI_AFLE_scan = np.mean(MNI_AFLE,1)
+MNI_AFLE_total = np.mean(MNI_AFLE_rater,0)
+MNI_AFLE_std = np.std(MNI_AFLE_rater,0)
+np.mean(MNI_AFLE_total)
+np.mean(MNI_AFLE_std)
+
+MNI_AFLE_lin_rater = np.mean(MNI_AFLE_lin,2).T
+MNI_AFLE_lin_scan = np.mean(MNI_AFLE_lin,1)
+MNI_AFLE_lin_total = np.mean(MNI_AFLE_lin_rater,0)
+MNI_AFLE_lin_std = np.std(MNI_AFLE_lin_rater,0)
+np.mean(MNI_AFLE_lin_total)
+np.std(MNI_AFLE_lin_total)
+
+
+df=pd.DataFrame(np.c_[
+					  [N + P for N,P in zip([f'{x:.2f}' for x in MNI_AFLE_lin_total ],[f' ({x:.2f})' for x in MNI_AFLE_lin_std])]+[f'{np.mean(MNI_AFLE_lin_total):.2f} ({np.std(MNI_AFLE_lin_total):.2f})'],
+					  [N + P for N,P in zip([f'{x:.2f}' for x in MNI_AFLE_total ],[f' ({x:.2f})' for x in MNI_AFLE_std])]+[f'{np.mean(MNI_AFLE_total):.2f} ({np.std(MNI_AFLE_total):.2f})']
+					  ])
+print(df.to_csv(index=None, header=None))
+
 #%%
 goldStandard = "MA"
 rater = 1
@@ -290,8 +429,9 @@ rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index(
 
 #%%
 
-plot_fiducials(rater_mean, GS_total_mean, data_dir, 1, show_only)
-plot_fiducials(rater_mean, GS_total_mean, data_dir, 2, show_only)
+plot_fiducials(rater_mean, GS_total_mean, data_dir_out, 1, False)
+plot_fiducials(rater_mean, GS_total_mean, data_dir_out, 2, False)
+plot_fiducials(data_from_mcp_avg, None, data_dir_out, 3, False)
 
 #%%
 
@@ -357,6 +497,7 @@ if not show_only:
 	plt.close()
 
 #%%
+
 output_dir = r'/home/greydon/Documents/GitHub/afids_parkinsons/output/avg_fcsv'
 overall_mean = Data_comp.groupby(['subject','fid'])['x','y','z'].mean().reset_index()
 
@@ -555,4 +696,108 @@ if not show_only:
 	fig.set_size_inches(14, 10)
 	fig.savefig(os.path.join(output_dir, file_name), dpi=100)
 	plt.close()
+
+#%%
+import seaborn as sns
+import matplotlib.gridspec as gridspec
+from matplotlib.font_manager import FontProperties
+
+pal=sns.diverging_palette(h_neg=220, h_pos=10, s=50, l=50,sep=1,n=2,as_cmap=True)
+
+fig = plt.figure(figsize=(12,10))
+gs = gridspec.GridSpec(3, 10)
+
+ax1 = fig.add_subplot(gs[0:1, :8])
+
+plotData = {}
+plotData['afid'] = np.repeat(list(range(1,33)),5).flatten()
+plotData['AFLE'] = Rater_AFLE_mean.flatten()
+
+sns.barplot(x='afid', y='AFLE', data=pd.DataFrame(plotData),ax=ax1, ci='sd',zorder=5, color='lightblue',errwidth=1.5,capsize = .3)
+ax1.set_ylabel('AFLE (mm)', fontweight='bold',fontsize=18, labelpad=12)
+ax1.set_ylim([0,5])
+ax1.set_xlabel(None)
+ax1.spines['right'].set_visible(False)
+ax1.spines['top'].set_visible(False)
+ax1.tick_params(axis='both', which='major', labelsize=14)
+ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
+
+
+ax2 = fig.add_subplot(gs[1:, :])
+sns.heatmap(Rater_AFLE, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"AFLE (mm)"}, xticklabels=list(range(1,33)), vmin=0,vmax=5)
+plt.gca().invert_yaxis()
+font = FontProperties(weight='bold', size=18)
+ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
+
+ax2.set_yticks([4.5,10,15,20,25,30,35])
+ax2.yaxis.set_ticklabels([5,10,15,20,25,30,35])
+ax2.set_ylabel('Subject', fontweight='bold',fontsize=18, labelpad=12)
+ax2.set_xlabel('AFID', fontweight='bold',fontsize=18, labelpad=12)
+ax2.tick_params(axis='both', which='major', labelsize=14)
+ax2.text(-.07, 1,'b)', transform=ax2.transAxes, fontsize=18, fontweight='bold')
+
+fig.suptitle("Mean anatomical fiducial localization error", y = 0.98, fontsize=22, fontweight='bold')
+
+plt.tight_layout()
+
+
+#%%
+
+data_dir_out = "/media/greydon/KINGSTON34/phdCandidacy/thesis/imgs"
+
+file_name="mean_AFLE_subject_space"
+plt.savefig(os.path.join(data_dir_out, f"{file_name}.svg"),transparent=True)
+plt.savefig(os.path.join(data_dir_out, f"{file_name}.png"),transparent=True,dpi=450)
+plt.savefig(os.path.join(data_dir_out, f"{file_name}_white.png"),transparent=False,dpi=450)
+plt.close()
+
+
+#%%
+
+fig = plt.figure(figsize=(12,10))
+gs = gridspec.GridSpec(3, 10)
+
+ax1 = fig.add_subplot(gs[0:1, :8])
+
+plotData = {}
+plotData['afid'] = np.repeat(list(range(1,33)),5).flatten()
+plotData['AFRE'] = MNI_AFLE_scan.flatten()
+
+sns.barplot(x='afid', y='AFRE', data=pd.DataFrame(plotData),ax=ax1, ci='sd',zorder=5, color='lightblue',errwidth=1.5,capsize = .3)
+ax1.set_ylabel('AFRE (mm)', fontweight='bold',fontsize=18, labelpad=12)
+ax1.set_ylim([0,8])
+ax1.set_xlabel(None)
+ax1.spines['right'].set_visible(False)
+ax1.spines['top'].set_visible(False)
+ax1.tick_params(axis='both', which='major', labelsize=14)
+ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
+
+
+ax2 = fig.add_subplot(gs[1:, :])
+sns.heatmap(MNI_AFLE_rater, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"AFRE (mm)"}, xticklabels=list(range(1,33)), vmin=0,vmax=10)
+plt.gca().invert_yaxis()
+font = FontProperties(weight='bold', size=18)
+ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
+ax2.set_yticks([4.5,10,15,20,25,30,35])
+ax2.yaxis.set_ticklabels([5,10,15,20,25,30,35])
+ax2.set_ylabel('Subject', fontweight='bold',fontsize=18, labelpad=12)
+ax2.set_xlabel('AFID', fontweight='bold',fontsize=18, labelpad=12)
+ax2.tick_params(axis='both', which='major', labelsize=14)
+ax2.text(-.07, 1,'b)', transform=ax2.transAxes, fontsize=18, fontweight='bold')
+
+fig.suptitle("Mean anatomical fiducial registration error", y = 0.98, fontsize=22, fontweight='bold')
+
+plt.tight_layout()
+
+
+#%%
+
+data_dir_out = "/media/greydon/KINGSTON34/phdCandidacy/thesis/imgs"
+
+file_name="mean_AFRE_mni_space"
+plt.savefig(os.path.join(data_dir_out, f"{file_name}.svg"),transparent=True)
+plt.savefig(os.path.join(data_dir_out, f"{file_name}.png"),transparent=True,dpi=450)
+plt.savefig(os.path.join(data_dir_out, f"{file_name}_white.png"),transparent=False,dpi=450)
+plt.close()
+
 
