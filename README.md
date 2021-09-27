@@ -57,8 +57,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This companion repository is for the article **Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease
-Brain Structure and Function** submitted to the journal *Brain Structure & Function*.
+This companion repository is for the preprint **Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease**.
 
 ### Built With
 
