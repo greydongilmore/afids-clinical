@@ -8,26 +8,36 @@ fclose('all');
 
 % data_dir = 'D:\School\Residency\Research\FIDs Study\Github\afids_parkinsons\input';
 % data_dir = 'C:\Users\greydon\Documents\GitHub\afids_parkinsons\input';
+data_dir = '/home/greydon/Documents/GitHub/afids-clinical/data/input_fid_MNI_linear_combined';
 data_dir = 'C:\Users\moham\Documents\GitHub\afids_parkinsons\input';
 
-patient_files = dir(fullfile([data_dir, '\input_mniTransform']));
-patient_files = patient_files(~[patient_files.isdir]);
+sub_ignore = [146];
 
-for data = 1:length(patient_files)  
-    [data_table] = read_fcsv_mni(patient_files(data));
-    df_raters{data} = data_table;
+
+raters = dir(data_dir);
+raters = raters([raters.isdir] & ~strcmp({raters.name},'.') & ~strcmp({raters.name},'..') & ~strcmp({raters.name},'mean'));
+df_raters = cell(1,1);
+iter_cnt = 1;
+for irater = 1:length(raters)
+    patient_files = dir(fullfile(data_dir,raters(irater).name));
+    patient_files = patient_files([patient_files.isdir] & ~strcmp({patient_files.name},'.') & ~strcmp({patient_files.name},'..'));
+    for isub = 1:length(patient_files)
+        fileN = dir(fullfile(data_dir,raters(irater).name, patient_files(isub).name));
+        fileN = fileN(~strcmp({fileN.name},'.') & ~strcmp({fileN.name},'..') & endsWith({fileN.name},'nlin.fcsv','IgnoreCase',true));
+        [data_table] = read_fcsv_mni(fileN);
+        df_raters{iter_cnt} = data_table;
+        iter_cnt = iter_cnt + 1;
+    end
 end
-
 
 Data = vertcat(df_raters{:});
 
 % List of raters
-raters = ["AT";"GG";"MA";"MJ";"RC"];
+raters = string(unique(Data.rater,'rows'));
 
 % Generates arrays for subjects completed by each rater
 Sub = {};
 Size_sub = [];
-sub_ignore = [169];
 for r = 1:length(raters)
     idx = ismember(Data.rater, raters(r));
     sub_temp = unique(Data.subject(idx,:), 'rows');
@@ -37,6 +47,7 @@ for r = 1:length(raters)
     Sub{1,r} = sub_temp(~ismember(sub_temp, sub_ignore));
     Size_sub(r) = length(Sub{1,r});
 end
+
 
 % Subjects completed by all raters
 [B,I] = sort(Size_sub, 'descend');
@@ -64,20 +75,18 @@ end
 %% Load MNI mean data from Jon's paper (i.e. gold standard MNI (gs MNI))
 
 % Generate array with fid number, x, y and z coordinates for MNI mean
+load('/home/greydon/Documents/GitHub/afids-clinical/data/fid_standards/MNI152NLin2009cAsym_standard_afids/MNI152NLin2009cAsym_standard.mat')
 load('C:\Users\moham\Documents\GitHub\afids_parkinsons\analysis\MNI_mean.mat');
-MNI_mean = table2array(data_table(:,1:4));
 
 % Difference between each fiducial placed and gs MNI + euclidian distance
 
-MNI_Diff = Tot_Data(:,1:4,:,:) - repmat(MNI_mean,1,1,length(Sub_Comp),length(raters));
+MNI_Diff = Tot_Data(:,1:4,:,:) - repmat(MNI152NLin2009cAsym_standard,1,1,length(Sub_Comp),length(raters));
 MNI_AFLE = squeeze(sqrt(MNI_Diff(:,2,:,:).^2 + MNI_Diff(:,3,:,:).^2 + MNI_Diff(:,4,:,:).^2));
 
 % AFLE from gs MNI across raters, individual scans and raters + fids
 MNI_AFLE_rater = squeeze(mean(MNI_AFLE,3));
 MNI_AFLE_scan = squeeze(mean(MNI_AFLE,2));
 MNI_AFLE_total = squeeze(mean(MNI_AFLE_rater,1));
-
-
 
 %% Generate mean coordinates for gold standard + non-gold standard raters
 
@@ -86,8 +95,8 @@ patient_files = dir(fullfile([data_dir, '\mni_jon_standard']));
 patient_files = patient_files(endsWith({patient_files.name},'.mat'));
 
 load([patient_files.folder , '\' , patient_files.name]);
-mni_jon_standard_rep = repmat(mni_jon_standard,1,1,length(Sub_Comp),length(raters));
-mni_jon_standard_diff = Tot_Data - mni_jon_standard_rep;
+mni_jon_standard_rep = repmat(MNI152NLin2009cAsym_standard,1,1,length(Sub_Comp),length(raters));
+mni_jon_standard_diff = Tot_Data(:,1:4,:,:) - mni_jon_standard_rep;
 mni_jon_standard_eudiff = sqrt(mni_jon_standard_diff(:,2,:,:).^2 + mni_jon_standard_diff(:,3,:,:).^2 + mni_jon_standard_diff(:,4,:,:).^2);
 mni_jon_standard_AFLE_mean = squeeze(mean(mni_jon_standard_eudiff,3));
 
