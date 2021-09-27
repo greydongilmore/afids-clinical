@@ -57,7 +57,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This companion repository is for the preprint **Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease**.
+This companion repository is for the article **Application of the anatomical fiducials framework to a clinical dataset of patients with Parkinson’s disease**.
 
 ### Built With
 
@@ -110,18 +110,22 @@ The repository has the following scheme:
 ├── LICENSE.txt
 ├── data
 |   ├── fid_standards
-|   ├── input_fid_MNI_linear
-|   ├── input_fid_MNI_nonlinear
+|   ├── input_fid_MNI_linear_combined
 |   ├── input_fid_native
 |   ├── OASIS-1
 |   └── demographics.tsv
 ├── manuscript
-|   └── final_figures
+|   ├── afids_glass_brain.html                      # Interactive glass brain plot of all AFIDs
+|   └── final_figures                               # Final manuscript figures
 ├── results
 |   ├── avg_fcsv
 |   └── plots
 └── src
     ├── matlab
+    |    ├── Fids_analysis.m                        # AFIDs analysis in patient space 
+    |    ├── Fids_analysis_fmriprep.m               # AFIDs analysis using fmriprep results
+    |    ├── Fids_analysis_mni.m                    # AFIDs analysis in MNI space 
+    |    └── Fids_distance.m                        
     └── python
         ├── antsApplyH5TransformsToSlicerFCSV.py    # applies full ANTS transform to fcsv file of markups points using the **antsApplyTransformsToPoints** ANTS command 
         ├── antsApplyLinearTransformToSlicerFCSV.py # applies linear component of ANTS transform to fcsv file of markups points using the **antsApplyTransformsToPoints** ANTS command 
