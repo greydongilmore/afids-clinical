@@ -8,6 +8,9 @@ from mpl_toolkits.mplot3d import axes3d, Axes3D
 import random
 import matplotlib
 from collections import OrderedDict
+import seaborn as sns
+import matplotlib.gridspec as gridspec
+from matplotlib.font_manager import FontProperties
 
 plt.rcdefaults()
 plt.rc('xtick.major', size = 0, width=0)
@@ -357,7 +360,7 @@ for irate in range(len(raters)):
 		Tot_Data_lin[:,:,isub,irate] = Data_mni_lin_comp[(Data_mni_lin_comp['rater']==raters[irate]) & (Data_mni_lin_comp['subject']==Sub_Comp[isub])].sort_values(['fid']).loc[:,['fid','x','y','z','subject']]
 
 
-MNI152NLin2009cAsym_standard = pd.read_csv('/home/greydon/Documents/GitHub/afids-clinical/data/fid_standards/MNI152NLin2009bAsym_rater_standard/MNI152NLin2009bAsym_rater_standard.fcsv', skiprows=2)[['label','x','y','z']].to_numpy()
+MNI152NLin2009cAsym_standard = pd.read_csv('/home/greydon/Documents/GitHub/afids-clinical/data/fid_standards/MNI152NLin2009bAsym_rater_standard/MNI152NLin2009bAsym_desc-raterstandard_afids.fcsv', skiprows=2)[['label','x','y','z']].to_numpy()
 N = MNI152NLin2009cAsym_standard[:,:,np.newaxis, np.newaxis]
 MNI_Diff = Tot_Data[:,:4,:,:] - np.tile(N,[1,1,len(Sub_Comp),len(raters)])
 MNI_AFLE = np.sqrt(MNI_Diff[:,1,:,:]**2 + MNI_Diff[:,2,:,:]**2 + MNI_Diff[:,3,:,:]**2)
@@ -371,7 +374,7 @@ MNI_AFLE_scan = np.mean(MNI_AFLE,1)
 MNI_AFLE_total = np.mean(MNI_AFLE_rater,0)
 MNI_AFLE_std = np.std(MNI_AFLE_rater,0)
 np.mean(MNI_AFLE_total)
-np.mean(MNI_AFLE_std)
+np.std(MNI_AFLE_total)
 
 MNI_AFLE_lin_rater = np.mean(MNI_AFLE_lin,2).T
 MNI_AFLE_lin_scan = np.mean(MNI_AFLE_lin,1)
@@ -698,9 +701,7 @@ if not show_only:
 	plt.close()
 
 #%%
-import seaborn as sns
-import matplotlib.gridspec as gridspec
-from matplotlib.font_manager import FontProperties
+
 
 pal=sns.diverging_palette(h_neg=220, h_pos=10, s=50, l=50,sep=1,n=2,as_cmap=True)
 
@@ -722,9 +723,9 @@ ax1.spines['top'].set_visible(False)
 ax1.tick_params(axis='both', which='major', labelsize=14)
 ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
 
-
+Rater_AFLE_norm = (Rater_AFLE-np.tile(min(Rater_AFLE.flatten()),Rater_AFLE.shape))/np.tile(max(Rater_AFLE.flatten())-min(Rater_AFLE.flatten()),Rater_AFLE.shape)
 ax2 = fig.add_subplot(gs[1:, :])
-sns.heatmap(Rater_AFLE, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"AFLE (mm)"}, xticklabels=list(range(1,33)), vmin=0,vmax=5)
+sns.heatmap(Rater_AFLE_norm, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"Normalized AFLE"}, xticklabels=list(range(1,33)), vmin=0,vmax=1)
 plt.gca().invert_yaxis()
 font = FontProperties(weight='bold', size=18)
 ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
@@ -754,6 +755,8 @@ plt.close()
 
 #%%
 
+pal=sns.diverging_palette(h_neg=220, h_pos=10, s=50, l=50,sep=1,n=2,as_cmap=True)
+
 fig = plt.figure(figsize=(12,10))
 gs = gridspec.GridSpec(3, 10)
 
@@ -765,16 +768,17 @@ plotData['AFRE'] = MNI_AFLE_scan.flatten()
 
 sns.barplot(x='afid', y='AFRE', data=pd.DataFrame(plotData),ax=ax1, ci='sd',zorder=5, color='lightblue',errwidth=1.5,capsize = .3)
 ax1.set_ylabel('AFRE (mm)', fontweight='bold',fontsize=18, labelpad=12)
-ax1.set_ylim([0,8])
+ax1.set_ylim([0,10])
 ax1.set_xlabel(None)
 ax1.spines['right'].set_visible(False)
 ax1.spines['top'].set_visible(False)
 ax1.tick_params(axis='both', which='major', labelsize=14)
 ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
 
+MNI_AFLE_rater_norm = (MNI_AFLE_rater-np.tile(min(MNI_AFLE_rater.flatten()),MNI_AFLE_rater.shape))/np.tile(max(MNI_AFLE_rater.flatten())-min(MNI_AFLE_rater.flatten()),MNI_AFLE_rater.shape)
 
 ax2 = fig.add_subplot(gs[1:, :])
-sns.heatmap(MNI_AFLE_rater, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"AFRE (mm)"}, xticklabels=list(range(1,33)), vmin=0,vmax=10)
+sns.heatmap(MNI_AFLE_rater_norm, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"Normalized AFRE"}, xticklabels=list(range(1,33)), vmin=0,vmax=1)
 plt.gca().invert_yaxis()
 font = FontProperties(weight='bold', size=18)
 ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
