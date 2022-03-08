@@ -555,8 +555,24 @@ afle['x'] = rater_diff[:,0]
 afle['y'] = rater_diff[:,1]
 afle['z'] = rater_diff[:,2]
 
-afle_mean = afle.groupby(['rater','fid'])['euclid'].mean().values
+exp_nov=np.zeros(afle.shape[0])
+exp_nov[afle['rater'].isin(['MA','GG'])]=1
+afle['exp_nov']=exp_nov
+
+
+afle_mean = afle.groupby(['exp_nov'])['euclid'].mean().values
+
+from scipy.stats import ranksums
+import scipy.stats as stats
+
+stats.mannwhitneyu(x=afle[afle['exp_nov']==0]['euclid'], y=afle[afle['exp_nov']==1]['euclid'], alternative = 'greater')
+ranksums(afle[afle['exp_nov']==0]['euclid'], afle[afle['exp_nov']==1]['euclid'])
+stats.ttest_ind(afle[afle['exp_nov']==0]['euclid'], afle[afle['exp_nov']==1]['euclid'])
+
 afle_mean_coords = afle.groupby(['rater','fid'])['x','y','z'].mean().values
+
+afle_mean_exp = afle.groupby(['rater','fid'])['euclid'].mean().values
+
 
 fig, axes = plt.subplots(5, 1)
 max_val = 6.0
