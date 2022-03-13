@@ -193,7 +193,8 @@ def plot_fiducials(data_plot, expert_mean, data_dir,analysis=2, showOnly=False):
 		plt.savefig(os.path.join(output_dir, f"{file_name}.png"),transparent=True,dpi=450)
 		plt.savefig(os.path.join(output_dir, f"{file_name}_white.png"),transparent=False,dpi=450)
 		plt.close()
-		
+
+
 #%%
 
 data_dir_out = r'/home/greydon/Documents/GitHub/afids-clinical/results'
@@ -541,26 +542,47 @@ for isub in np.unique(overall_mean['subject']):
 	
 		
 #%%
-rater_mean = Data_comp.groupby(['rater','fid'])['x','y','z'].mean().reset_index()
+
+k=5
+n=39
+
+icc_data = Data_comp.groupby(['rater','subject','fid'])['x','y','z'].mean().reset_index()
+
+Mean_Sub = Data_comp.sort_values(by=['rater','subject','fid'])[['x','y','z']].values.reshape(32, 3, 39)
+Mean_Rat = icc_data.groupby(['fid','subject'])['x','y','z'].mean().reset_index()
+Mean_Grand=Mean_Sub.groupby(['fid'])['x','y','z'].mean().reset_index()
+test=Mean_Rat.sort_values(by=['subject','fid'])[['x','y','z']].values.reshape((32, 3, 39))
+
+ICC_1=[]
+for isub in range(len(Mean_Rat['subject'].unique())):
+	ICC_1.append(((test[:,:,isub] - Mean_Grand[['x','y','z']].values)**2)*k)
+
+ICC_1=np.vstack(ICC_1)
+ICC_1_stat=np.sum(np.stack(ICC_1),0)/(n-1)
+
+
 
 afle = pd.DataFrame({})
-afle['subject'] = Data_comp['subject']
-afle['rater'] = Data_comp['rater']
-afle['fid'] = Data_comp['fid']
-raters_data = Data_comp.loc[:,['x','y','z']].values
-rater_data_avg = np.tile(Data_comp.groupby(['subject','fid'])['x','y','z'].mean().values[None,:], (len(raters), 1))[0]
+afle['subject'] = data_from_mcp['subject']
+afle['rater'] = data_from_mcp['rater']
+afle['fid'] = data_from_mcp['fid']
+raters_data = data_from_mcp.loc[:,['x','y','z']].values
+rater_data_avg = np.tile(data_from_mcp.groupby(['subject','fid'])['x','y','z'].mean().values[None,:], (len(raters), 1))[0]
 rater_diff = raters_data - rater_data_avg
 afle['euclid'] = pd.DataFrame(np.sqrt(rater_diff[:,0]**2 + rater_diff[:,1]**2 + rater_diff[:,2]**2)).values
-afle['x'] = rater_diff[:,0]
-afle['y'] = rater_diff[:,1]
-afle['z'] = rater_diff[:,2]
+afle['x'] = data_from_mcp['x']
+afle['y'] = data_from_mcp['y']
+afle['z'] = data_from_mcp['z']
 
 exp_nov=np.zeros(afle.shape[0])
 exp_nov[afle['rater'].isin(['MA','GG'])]=1
 afle['exp_nov']=exp_nov
 
+exp_nov=np.zeros(data_from_mcp.shape[0])
+exp_nov[data_from_mcp['rater'].isin(['MA','GG'])]=1
+data_from_mcp['exp_nov']=exp_nov
 
-afle_mean = afle.groupby(['exp_nov'])['euclid'].mean().values
+afle_mean = afle.groupby(['rater'])['euclid'].mean()
 
 from scipy.stats import ranksums
 import scipy.stats as stats
@@ -573,6 +595,27 @@ afle_mean_coords = afle.groupby(['rater','fid'])['x','y','z'].mean().values
 
 afle_mean_exp = afle.groupby(['rater','fid'])['euclid'].mean().values
 
+import pingouin as pg
+
+
+icc_overall=[]
+for ifid in range(1,33):
+	afle_data=afle[afle['fid']==ifid]
+	icc_overall.append(icc(np.c_[afle_data[afle_data['rater']=='AT']['x'], afle_data[afle_data['rater']=='GG']['x'],
+			  afle_data[afle_data['rater']=='MJ']['x'], afle_data[afle_data['rater']=='MA']['x'], afle_data[afle_data['rater']=='RC']['x']],'ICC(2,k)'))
+
+afle[afle['exp_nov']==0]
+
+icc_overall=[]
+for ifid in range(1,33):
+	iccx = pg.intraclass_corr(data=afle[(afle['fid']==ifid) ], targets='subject', raters='rater', ratings='x', nan_policy='omit').round(3)
+	iccy = pg.intraclass_corr(data=afle[(afle['fid']==ifid) ], targets='subject', raters='rater', ratings='y', nan_policy='omit').round(3)
+	iccz = pg.intraclass_corr(data=afle[(afle['fid']==ifid) ], targets='subject', raters='rater', ratings='z', nan_policy='omit').round(3)
+	icc_overall.append([iccx.ICC[4],iccy.ICC[4],iccz.ICC[4]])
+
+np.mean(icc_overall)
+
+numpy.corrcoef(list1, list2)[0,1]
 
 fig, axes = plt.subplots(5, 1)
 max_val = 6.0

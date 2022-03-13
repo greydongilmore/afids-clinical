@@ -186,7 +186,7 @@ zlabel('Z coord')
 % Matrix containing each statistic(BMS,JMS,WMS,EMS,ICC ; dim1) for each fid (dim 2) in each axis (dim 3)
 ICC_Stats = zeros(5,32,4);
 
-Raters_ICC = ["AT", "MJ", "RC"];
+Raters_ICC = ["AT", "MJ", "RC","GG","MA"];
 
 ICC_Data = squeeze(data_from_mcp(:,2:5,:,ismember(raters,Raters_ICC)));
 
@@ -229,6 +229,8 @@ ICC_Stats(5,:,:) = (ICC_Stats(1,:,:) - ICC_Stats(4,:,:))./(ICC_Stats(1,:,:) + IC
 
 Final_ICC = squeeze(ICC_Stats(5,:,:));
 
+mean(mean(Final_ICC(:,1:3),2))
+
 
 
 %% Plot matrix of AFRE, mean AFRE across raters for all subjects and AFIDs
@@ -249,9 +251,9 @@ yticklabels(0:5:39);
 
 % Bar plot + SD
 
-bar(1:32, Total_AFLE_mean);
+bar(1:32, mean(Final_ICC(:,1:3),2));
 hold on
-er = errorbar(1:32, Total_AFLE_mean, [], Total_AFLE_SD);
+er = errorbar(1:32, mean(Final_ICC(:,1:3),2), [], std(Final_ICC(:,1:3),[],2));
 er.Color = [0 0 0];                            
 er.LineStyle = 'none';
 xticks([])
