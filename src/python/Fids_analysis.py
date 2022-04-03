@@ -197,7 +197,7 @@ def plot_fiducials(data_plot, expert_mean, data_dir,analysis=2, showOnly=False):
 
 #%%
 
-data_dir_out = r'/home/greydon/Documents/GitHub/afids-clinical/results'
+data_dir_out = r'/home/greydon/Documents'
 
 sub_ignore = [146]
 
@@ -774,7 +774,7 @@ plotData['afid'] = np.repeat(list(range(1,33)),5).flatten()
 plotData['AFLE'] = Rater_AFLE_mean.flatten()
 
 sns.barplot(x='afid', y='AFLE', data=pd.DataFrame(plotData),ax=ax1, ci='sd',zorder=5, color='lightblue',errwidth=1.5,capsize = .3)
-ax1.set_ylabel('AFLE (mm)', fontweight='bold',fontsize=18, labelpad=12)
+ax1.set_ylabel('ATLE (mm)', fontweight='bold',fontsize=18, labelpad=12)
 ax1.set_ylim([0,5])
 ax1.set_xlabel(None)
 ax1.spines['right'].set_visible(False)
@@ -784,7 +784,7 @@ ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
 
 Rater_AFLE_norm = (Rater_AFLE-np.tile(min(Rater_AFLE.flatten()),Rater_AFLE.shape))/np.tile(max(Rater_AFLE.flatten())-min(Rater_AFLE.flatten()),Rater_AFLE.shape)
 ax2 = fig.add_subplot(gs[1:, :])
-sns.heatmap(Rater_AFLE_norm, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"Normalized AFLE"}, xticklabels=list(range(1,33)), vmin=0,vmax=1)
+sns.heatmap(Rater_AFLE, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"ATLE"}, xticklabels=list(range(1,33)), vmin=0,vmax=5)
 plt.gca().invert_yaxis()
 font = FontProperties(weight='bold', size=18)
 ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
@@ -796,16 +796,16 @@ ax2.set_xlabel('AFID', fontweight='bold',fontsize=18, labelpad=12)
 ax2.tick_params(axis='both', which='major', labelsize=14)
 ax2.text(-.07, 1,'b)', transform=ax2.transAxes, fontsize=18, fontweight='bold')
 
-fig.suptitle("Mean anatomical fiducial localization error", y = 0.98, fontsize=22, fontweight='bold')
+fig.suptitle("Mean anatomical target localization error", y = 0.98, fontsize=22, fontweight='bold')
 
 plt.tight_layout()
 
 
 #%%
 
-data_dir_out = "/media/greydon/KINGSTON34/phdCandidacy/thesis/imgs"
+data_dir_out = "/media/greydon/KINGSTON/phdCandidacy/thesis/imgs"
 
-file_name="mean_AFLE_subject_space"
+file_name="mean_ATLE_subject_space"
 plt.savefig(os.path.join(data_dir_out, f"{file_name}.svg"),transparent=True)
 plt.savefig(os.path.join(data_dir_out, f"{file_name}.png"),transparent=True,dpi=450)
 plt.savefig(os.path.join(data_dir_out, f"{file_name}_white.png"),transparent=False,dpi=450)
@@ -826,7 +826,7 @@ plotData['afid'] = np.repeat(list(range(1,33)),5).flatten()
 plotData['AFRE'] = MNI_AFLE_scan.flatten()
 
 sns.barplot(x='afid', y='AFRE', data=pd.DataFrame(plotData),ax=ax1, ci='sd',zorder=5, color='lightblue',errwidth=1.5,capsize = .3)
-ax1.set_ylabel('AFRE (mm)', fontweight='bold',fontsize=18, labelpad=12)
+ax1.set_ylabel('ATRE (mm)', fontweight='bold',fontsize=18, labelpad=12)
 ax1.set_ylim([0,10])
 ax1.set_xlabel(None)
 ax1.spines['right'].set_visible(False)
@@ -837,7 +837,7 @@ ax1.text(-.07, 1,'a)', transform=ax1.transAxes, fontsize=18, fontweight='bold')
 MNI_AFLE_rater_norm = (MNI_AFLE_rater-np.tile(min(MNI_AFLE_rater.flatten()),MNI_AFLE_rater.shape))/np.tile(max(MNI_AFLE_rater.flatten())-min(MNI_AFLE_rater.flatten()),MNI_AFLE_rater.shape)
 
 ax2 = fig.add_subplot(gs[1:, :])
-sns.heatmap(MNI_AFLE_rater_norm, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"Normalized AFRE"}, xticklabels=list(range(1,33)), vmin=0,vmax=1)
+sns.heatmap(MNI_AFLE_rater, annot = False, linewidth=.5, linecolor='w', ax=ax2, cmap=pal, cbar_kws={"shrink": .7,"label":"ATRE"}, xticklabels=list(range(1,33)), vmin=0,vmax=10)
 plt.gca().invert_yaxis()
 font = FontProperties(weight='bold', size=18)
 ax2.figure.axes[-1].yaxis.label.set_font_properties(font)
@@ -848,16 +848,16 @@ ax2.set_xlabel('AFID', fontweight='bold',fontsize=18, labelpad=12)
 ax2.tick_params(axis='both', which='major', labelsize=14)
 ax2.text(-.07, 1,'b)', transform=ax2.transAxes, fontsize=18, fontweight='bold')
 
-fig.suptitle("Mean anatomical fiducial registration error", y = 0.98, fontsize=22, fontweight='bold')
+fig.suptitle("Mean anatomical target registration error", y = 0.98, fontsize=22, fontweight='bold')
 
 plt.tight_layout()
 
 
 #%%
 
-data_dir_out = "/media/greydon/KINGSTON34/phdCandidacy/thesis/imgs"
+data_dir_out = "/media/greydon/KINGSTON/phdCandidacy/thesis/imgs"
 
-file_name="mean_AFRE_mni_space"
+file_name="mean_ATRE_mni_space"
 plt.savefig(os.path.join(data_dir_out, f"{file_name}.svg"),transparent=True)
 plt.savefig(os.path.join(data_dir_out, f"{file_name}.png"),transparent=True,dpi=450)
 plt.savefig(os.path.join(data_dir_out, f"{file_name}_white.png"),transparent=False,dpi=450)
